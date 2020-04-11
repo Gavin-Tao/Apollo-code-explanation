@@ -1,0 +1,19 @@
+syntax = "proto2"; //使用的protobuf编译器版本为2
+
+package apollo.canbus;  //声明了一个包名，用来防止不同的消息类型命名冲突，类似于 namespace
+
+//导入了一个外部proto文件中的定义，
+//类似于C++中的 include 只能import当前目录及当前目录的子目录中的proto文件
+import "modules/drivers/canbus/proto/can_card_parameter.proto";
+import "modules/canbus/proto/vehicle_parameter.proto";
+
+//1是字段的标识号，在消息定义中，每个字段都有唯一的一个数字标识号，
+//这些标识号是用来在消息的二进制格式中识别各个字段的，一旦开始使用就不能够再改变。
+//标识号的范围在：1 ~ 2^29 - 1，其中[19000－19999]为Protobuf预留，不能使用。
+message CanbusConf {
+  optional VehicleParameter vehicle_parameter = 1; //optional 变量类型 字段名=1；详情见modules/canbus/proto/vehicle_parameter.proto
+  optional apollo.drivers.canbus.CANCardParameter can_card_parameter = 2; //详情见apollo/drivers/canbus/CANCardParameter
+  optional bool enable_debug_mode = 3 [default = false]; //见canbus/conf/canbus.conf
+  optional bool enable_receiver_log = 4 [default = false];
+  optional bool enable_sender_log = 5 [default = false];
+}

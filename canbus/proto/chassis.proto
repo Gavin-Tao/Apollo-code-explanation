@@ -1,0 +1,251 @@
+//为什么没有1,2，10字段的标识号？？？？？
+
+
+syntax = "proto2"; v2版本
+
+package apollo.canbus; //apollo.bus包名
+
+import "modules/common/proto/header.proto";
+import "modules/common/proto/vehicle_signal.proto";
+import "modules/common/proto/drive_state.proto";
+import "modules/common/proto/geometry.proto";
+import "modules/common/configs/proto/vehicle_config.proto";
+
+// next id :31
+message Chassis {
+  //定义Chassis底盘的消息类型
+  enum DrivingMode {
+    //通过枚举DrivingMode驾驶模式各种可能的值
+    COMPLETE_MANUAL = 0;  // human drive 完全人工驾驶
+    COMPLETE_AUTO_DRIVE = 1; //完全自动驾驶
+    AUTO_STEER_ONLY = 2;  // only steer 只能自动转向
+    AUTO_SPEED_ONLY = 3;  // include throttle and brake 只能自动控制油门跟制动
+
+    // security mode when manual intervention happens, only response status
+    //当手动干预发生时，安全模式仅响应状态
+    EMERGENCY_MODE = 4; //紧急模式
+  }
+
+  enum ErrorCode {
+    //枚举错误码
+    NO_ERROR = 0; //没有故障
+
+    CMD_NOT_IN_PERIOD = 1;  // control cmd not in period 控制命令不及时
+
+    // car chassis report error, like steer, brake, throttle, gear fault
+    CHASSIS_ERROR = 2; //汽车底盘报告错误，例如转向，制动，油门，换挡故障
+
+    // classify the types of the car chassis errors
+    //对底盘错误类型进行分类
+    CHASSIS_ERROR_ON_STEER = 6; //转向故障
+    CHASSIS_ERROR_ON_BRAKE = 7; //制动故障
+    CHASSIS_ERROR_ON_THROTTLE = 8; //油门故障
+    CHASSIS_ERROR_ON_GEAR = 9; //换挡故障
+
+    MANUAL_INTERVENTION = 3;  // human manual intervention 人工干预
+
+    // receive car chassis can frame not in period
+    //没有及时收到底盘can信息
+    CHASSIS_CAN_NOT_IN_PERIOD = 4; //can信号不及时
+
+    UNKNOWN_ERROR = 5; //未知的故障
+  }
+
+  //枚举GearPosition换挡时机的可能值
+  enum GearPosition {
+    GEAR_NEUTRAL = 0; //空挡
+    GEAR_DRIVE = 1; //行车
+    GEAR_REVERSE = 2; //倒挡
+    GEAR_PARKING = 3; //停车
+    GEAR_LOW = 4; //低速？
+    GEAR_INVALID = 5; //无效？
+    GEAR_NONE = 6; //没有换挡
+  }
+
+  optional bool engine_started = 3; //发动机是否开启
+
+  // Engine speed in RPM.
+  //发动机转速 转/分
+  optional float engine_rpm = 4 [default = nan];
+
+  // Vehicle Speed in meters per second.
+  //车辆速度 m/s
+  optional float speed_mps = 5 [default = nan];
+
+  // Vehicle odometer in meters.
+  //车辆里程表 米
+  optional float odometer_m = 6 [default = nan];
+
+  // Fuel range in meters.
+  //燃油范围 米
+  optional int32 fuel_range_m = 7;
+
+  // Real throttle location in [%], ranging from 0 to 100.
+  //实际油门位置，以[％]为单位，范围为0到100%。
+  optional float throttle_percentage = 8 [default = nan];
+
+  // Real brake location in [%], ranging from 0 to 100.
+  //实际制动位置，以 % 为单位，范围为0~100%
+  optional float brake_percentage = 9 [default = nan];
+
+  // Real steering location in [%], ranging from -100 to 100.
+  // steering_angle / max_steering_angle
+  // Clockwise: negative
+  // CountClockwise: positive
+  //实际转向位置，以 % 为单位，范围是-100%~100%
+  //转向角度/最大转向角度
+  //顺时针为负，逆时针为正
+  optional float steering_percentage = 11 [default = nan];
+
+  // Applied steering torque in [Nm].
+  //施加的转向扭矩 单位牛顿米 Nm
+  optional float steering_torque_nm = 12 [default = nan];
+
+  // Parking brake status.
+  //驻车制动器状态
+  optional bool parking_brake = 13;
+
+  // Light signals.
+  //信号灯
+  optional bool high_beam_signal = 14 [deprecated = true]; //远光灯
+  optional bool low_beam_signal = 15 [deprecated = true]; //近光灯
+  optional bool left_turn_signal = 16 [deprecated = true]; //左转向灯
+  optional bool right_turn_signal = 17 [deprecated = true]; //右转向灯
+  optional bool horn = 18 [deprecated = true]; //喇叭
+
+  optional bool wiper = 19; //雨刮器
+  optional bool disengage_status = 20 [deprecated = true]; //脱离状态
+  optional DrivingMode driving_mode = 21 [default = COMPLETE_MANUAL]; //驾驶模式，默认是完全人工驾驶
+  optional ErrorCode error_code = 22 [default = NO_ERROR]; //故障码，默认是没有故障
+  optional GearPosition gear_location = 23;  //换挡时机
+
+  // timestamp for steering module
+  //转向模块的时间戳
+  optional double steering_timestamp = 24;  // In seconds, with 1e-6 accuracy 以秒为单位，精确度为1e-6
+
+  // chassis also needs it own sending timestamp
+  //底盘同样也需要自己的发送时间戳
+  optional apollo.common.Header header = 25; //Header消息类型
+
+  optional int32 chassis_error_mask = 26 [default = 0]; //底盘故障掩码
+
+  optional apollo.common.VehicleSignal signal = 27; //车辆信号灯
+
+  // Only available for Lincoln now
+  //现在仅适用于林肯车
+  optional ChassisGPS chassis_gps = 28; //底盘GPS
+
+  optional apollo.common.EngageAdvice engage_advice = 29; //driver_state.proto  关键模块运行时发布的参与建议
+
+  optional WheelSpeed wheel_speed = 30; //轮速
+
+  optional Surround surround = 31; //周边
+
+  // Vehicle registration information
+  //车辆登记信息
+  optional License license = 32 [deprecated = true]; //授权
+
+  // Real gear location.
+  //真实换挡位置
+  //为什么被注释掉了？？？？？？
+  // optional int32 gear_location = 10 [deprecated = true]; deprecated use enum 默认使用enum
+  // replace this [id 23]
+
+  optional apollo.common.VehicleID vehicle_id = 33; //车辆ID
+}
+
+//定义底盘GPS的消息类型
+message ChassisGPS {
+  optional double latitude = 1; //纬度
+  optional double longitude = 2; //经度
+  optional bool gps_valid = 3; //GPS验证（validation）是否可用
+
+  optional int32 year = 4; //年
+  optional int32 month = 5; //月
+  optional int32 day = 6; //天
+  optional int32 hours = 7; //小时
+  optional int32 minutes = 8; //分
+  optional int32 seconds = 9; //秒
+  optional double compass_direction = 10; //罗盘方向
+  optional double pdop = 11; //位置精度强弱度的意思。 PDOP( position dilution of precision ) 三维位置精度因子：为纬度、经度和高程等误差平方和的开根号值
+                             //PDOP值：卫星分布的空间几何强度因子，一般卫星分布越好时，PDOP值越小，一般小于3为比较理想状态。
+  optional bool is_gps_fault = 12; //GPS是否故障
+  optional bool is_inferred = 13; //是否被推理，推导？？？？？
+
+  optional double altitude = 14; //高度
+  optional double heading = 15; //朝向
+  optional double hdop = 16; // HDOP（horizontal dilution of precision ）水平分量精度因子：为纬度和经度等误差平方和的开根号值。
+  optional double vdop = 17; // VDOP（vertical dilution of precision ）垂直分量精度因子
+  optional GpsQuality quality = 18; //GPS质量
+  optional int32 num_satellites = 19; //卫星数量
+  optional double gps_speed = 20; //GPS速度
+}
+
+enum GpsQuality {
+  FIX_NO = 0; //没有信号
+  FIX_2D = 1; //2D
+  FIX_3D = 2; //3D
+  FIX_INVALID = 3; //无效的
+}
+
+//轮速
+message WheelSpeed {
+  enum WheelSpeedType {
+    FORWARD = 0;
+    BACKWARD = 1;
+    STANDSTILL = 2;
+    INVALID = 3;
+  }
+  optional bool is_wheel_spd_rr_valid = 1 [default = false];
+  optional WheelSpeedType wheel_direction_rr = 2 [default = INVALID];
+  optional double wheel_spd_rr = 3 [default = 0.0];
+  optional bool is_wheel_spd_rl_valid = 4 [default = false];
+  optional WheelSpeedType wheel_direction_rl = 5 [default = INVALID];
+  optional double wheel_spd_rl = 6 [default = 0.0];
+  optional bool is_wheel_spd_fr_valid = 7 [default = false];
+  optional WheelSpeedType wheel_direction_fr = 8 [default = INVALID];
+  optional double wheel_spd_fr = 9 [default = 0.0];
+  optional bool is_wheel_spd_fl_valid = 10 [default = false];
+  optional WheelSpeedType wheel_direction_fl = 11 [default = INVALID];
+  optional double wheel_spd_fl = 12 [default = 0.0];
+}
+
+//声呐
+message Sonar {
+  optional double range = 1;                       // Meter
+  optional apollo.common.Point3D translation = 2;  // Meter
+  optional apollo.common.Quaternion rotation = 3;
+}
+
+//周围
+message Surround {
+  optional bool cross_traffic_alert_left = 1; //交叉路口警报左
+  optional bool cross_traffic_alert_left_enabled = 2;
+  optional bool blind_spot_left_alert = 3;
+  optional bool blind_spot_left_alert_enabled = 4;
+  optional bool cross_traffic_alert_right = 5;
+  optional bool cross_traffic_alert_right_enabled = 6;
+  optional bool blind_spot_right_alert = 7;
+  optional bool blind_spot_right_alert_enabled = 8;
+  optional double sonar00 = 9;
+  optional double sonar01 = 10;
+  optional double sonar02 = 11;
+  optional double sonar03 = 12;
+  optional double sonar04 = 13;
+  optional double sonar05 = 14;
+  optional double sonar06 = 15;
+  optional double sonar07 = 16;
+  optional double sonar08 = 17;
+  optional double sonar09 = 18;
+  optional double sonar10 = 19;
+  optional double sonar11 = 20;
+  optional bool sonar_enabled = 21;
+  optional bool sonar_fault = 22;
+  repeated double sonar_range = 23;
+  repeated Sonar sonar = 24;
+}
+
+//许可证
+message License {
+  optional string vin = 1 [deprecated = true];
+}

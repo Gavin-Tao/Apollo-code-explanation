@@ -1,0 +1,17 @@
+vehicle_parameter {
+  brand: LINCOLN_MKZ //品牌
+  max_enable_fail_attempt: 5 //最大失败尝试次数
+  driving_mode: COMPLETE_AUTO_DRIVE //驾驶模式
+}
+
+//详情见drivers/canbus/proto/can_card_parameter.proto
+can_card_parameter {
+  brand: ESD_CAN
+  type: PCI_CARD //种类
+  channel_id: CHANNEL_ID_ZERO //通道ID
+  interface: NATIVE //接口：原生接口
+}
+
+enable_debug_mode: false
+enable_receiver_log: false
+enable_sender_log: false

@@ -1,0 +1,251 @@
+syntax = "proto2";
+
+package apollo.canbus;
+
+//定义换挡控制a1的消息类型
+message Gear_control_a1 {
+  // Control Message
+  //枚举换挡状态目标类型
+  enum Gear_state_targetType {
+    GEAR_STATE_TARGET_P = 1; //停车
+    GEAR_STATE_TARGET_N = 2; //空挡
+    GEAR_STATE_TARGET_D = 3; //前进挡
+    GEAR_STATE_TARGET_R = 4; //倒挡
+    GEAR_STATE_TARGET_INVALID = 5; //无效
+  }
+  //枚举启用换挡控制类型
+  enum Gear_enable_controlType {
+    GEAR_ENABLE_CONTROL_GEAR_MANUALCONTROL = 0; //手动挡
+    GEAR_ENABLE_CONTROL_GEAR_AUTOCONTROL = 1; //自动挡
+  }
+  // [] [0|5]
+  //换挡状态目标类型：0~5
+  optional Gear_state_targetType gear_state_target = 1;
+  // [] [0|1]
+  //启用换挡控制类型：0~1
+  optional Gear_enable_controlType gear_enable_control = 2;
+}
+
+//扭矩控制a3
+message Torque_control_a3 {
+  // Control Message
+  //枚举启用驱动控制类型
+  enum Driven_enable_controlType {
+    DRIVEN_ENABLE_CONTROL_DRIVE_MANUAL = 0; //手动
+    DRIVEN_ENABLE_CONTROL_DRIVE_AUTO = 1; //自动
+  }
+  // [%] [0|100]
+  //驱动扭矩：0~100%
+  optional double driven_torque = 1;
+  // [] [0|1]
+  //驱动控制：0~1
+  optional Driven_enable_controlType driven_enable_control = 2;
+}
+
+//转向控制a2的消息类型
+message Steering_control_a2 {
+  // Control Message
+  //枚举启用转向控制类型
+  enum Steering_enable_controlType {
+    STEERING_ENABLE_CONTROL_STEERING_MANUALCONTROL = 0; //手动
+    STEERING_ENABLE_CONTROL_STEERING_AUTOCONTROL = 1; //自动
+  }
+  // [deg] [-30|30]
+  //转向目标：-30°~30°
+  optional double steering_target = 1;
+  // [] [0|1]
+  //转向控制类型：0~1
+  optional Steering_enable_controlType steering_enable_control = 2;
+}
+
+//定义停车控制a5的消息类型
+message Parking_control_a5 {
+  // Control Message
+  //枚举停车目标类型
+  enum Parking_targetType {
+    PARKING_TARGET_RELEASE = 0; //释放停车
+    PARKING_TARGET_PARKING_TRIGGER = 1; //触发停车
+  }
+  //枚举启用停车控制类型
+  enum Parking_enable_controlType {
+    PARKING_ENABLE_CONTROL_PARKING_MANUALCONTROL = 0; //通过手动停车
+    PARKING_ENABLE_CONTROL_PARKING_AUTOCONTROL = 1; //自动停车
+  }
+  // [] [0|1]
+  //停车目标类型：0~1
+  optional Parking_targetType parking_target = 1;
+  // [] [0|1]
+  //启用停车控制类型：0~1
+  optional Parking_enable_controlType parking_enable_control = 2;
+}
+
+//定义制动控制a4的消息类型
+message Brake_control_a4 {
+  // Control Message
+  //枚举启用制动控制类型
+  enum Brake_enable_controlType {
+    BRAKE_ENABLE_CONTROL_BRAKE_MANUAL = 0; //手动制动
+    BRAKE_ENABLE_CONTROL_BRAKE_AUTO = 1; //自动制动
+  }
+  // [%] [0|100]
+  //制动扭矩：0~100%
+  optional double brake_torque = 1;
+  // [] [0|1]
+  //启用制动控制类型：0~1
+  optional Brake_enable_controlType brake_enable_control = 2;
+}
+
+//定义启用状态反馈c3的消息类型
+message Enable_state_feedback_c3 {
+  // Report Message
+  //枚举启用停车状态类型
+  enum Parking_enable_stateType {
+    PARKING_ENABLE_STATE_PARKING_MANUALCONTROL = 0; //手动
+    PARKING_ENABLE_STATE_PARKING_AUTOCONTROL = 1; //自动
+    PARKING_ENABLE_STATE_PARKING_TAKEOVER = 2; //接管
+  }
+  //枚举启用转向状态类型
+  enum Steering_enable_stateType {
+    STEERING_ENABLE_STATE_STEERING_MANUALCONTROL = 0; //手动
+    STEERING_ENABLE_STATE_STEERING_AUTOCONTROL = 1; //自动
+    STEERING_ENABLE_STATE_STEERING_MANUAL_TAKEOVER = 2; //接管
+  }
+  //枚举启用换挡的实际类型
+  enum Gear_enable_actualType {
+    GEAR_ENABLE_ACTUAL_GEAR_MANUALCONTROL = 0; //实际手动换挡
+    GEAR_ENABLE_ACTUAL_GEAR_AUTOCONTROL = 1; //实际自动换挡
+    GEAR_ENABLE_ACTUAL_GEAR_MANUAL_TAKEOVER = 2; //实际手动接管
+  }
+  //枚举启用前进状态的类型
+  enum Driven_enable_stateType {
+    DRIVEN_ENABLE_STATE_DRIVE_MANUAL = 0; //手动前进状态
+    DRIVEN_ENABLE_STATE_DRIVE_AUTO = 1; //自动前进状态
+    DRIVEN_ENABLE_STATE_DRIVE_TAKEOVER = 2; //接管前进状态
+  }
+  //枚举启用制动状态的类型
+  enum Brake_enable_stateType {
+    BRAKE_ENABLE_STATE_BRAKE_MANUAL = 0; //手动刹车状态
+    BRAKE_ENABLE_STATE_BRAKE_AUTO = 1; //自动刹车状态
+    BRAKE_ENABLE_STATE_BRAKE_TAKEOVER = 2; //接管制动状态
+  }
+  // [] [0|1]
+  //启用停车状态类型：0~1
+  optional Parking_enable_stateType parking_enable_state = 1;
+  // [] [0|2]
+  //启用转向状态类型：0~2
+  optional Steering_enable_stateType steering_enable_state = 2;
+  // [] [0|2]
+  //启用转向的实际类型：0~2
+  optional Gear_enable_actualType gear_enable_actual = 3;
+  // [] [0|2]
+  //启用前进状态类型：0~2
+  optional Driven_enable_stateType driven_enable_state = 4;
+  // [] [0|2]
+  //启用制动状态类型：0~2
+  optional Brake_enable_stateType brake_enable_state = 5;
+}
+
+//定义车辆状态反馈c1的消息类型
+message Vehicle_state_feedback_c1 {
+  // Report Message
+  //枚举实际停车的类型
+  enum Parking_actualType {
+    PARKING_ACTUAL_RELEASE = 0; //释放停车
+    PARKING_ACTUAL_PARKING_TRIGGER = 1; //触发停车
+  }
+  //枚举实际转向状态的类型
+  enum Gear_state_actualType {
+    GEAR_STATE_ACTUAL_P = 1; //停车
+    GEAR_STATE_ACTUAL_N = 2; //空挡
+    GEAR_STATE_ACTUAL_D = 3; //前进
+    GEAR_STATE_ACTUAL_R = 4; //倒挡
+    GEAR_STATE_ACTUAL_INVALID = 5; //无效
+  }
+  // [] [0|1]
+  //实际停车类型：0~1
+  optional Parking_actualType parking_actual = 1;
+  // [%] [0|100]
+  //制动扭矩反馈：0~100%
+  optional double brake_torque_feedback = 2;
+  // [] [0|5]
+  //实际转向状态类型：0~5
+  optional Gear_state_actualType gear_state_actual = 3;
+  // [deg] [-40|40]
+  //实际转向：-40°~40°
+  optional double steering_actual = 4;
+  // [kph] [0|35]
+  //车速：0~35 km/h
+  optional double speed = 5;
+}
+
+//定义故障状态e1的消息类型
+message Error_state_e1 {
+  // Report Message
+  //枚举制动故障码类型
+  enum Brake_error_codeType {
+    BRAKE_ERROR_CODE_NO_ERROR = 0; //没有故障
+    BRAKE_ERROR_CODE_ERROR = 1; //有故障
+  }
+  //枚举前进故障码类型
+  enum Driven_error_codeType {
+    DRIVEN_ERROR_CODE_NO_ERROR = 0; //没有故障
+    DRIVEN_ERROR_CODE_ERROR = 1; //有故障
+  }
+  //枚举转向故障码类型
+  enum Steering_error_codeType {
+    STEERING_ERROR_CODE_NO_ERROR = 0; //没有故障
+    STEERING_ERROR_CODE_ERROR = 1; //有故障
+  }
+  //枚举停车故障码类型
+  enum Parking_error_codeType {
+    PARKING_ERROR_CODE_NO_ERROR = 0; //没有故障
+    PARKING_ERROR_CODE_ERROR = 1; //有故障
+  }
+  //枚举换挡故障码消息类型
+  enum Gear_error_msgType {
+    GEAR_ERROR_MSG_NO_ERROR = 0; //没有故障
+    GEAR_ERROR_MSG_ERROR = 1; //有故障
+  }
+  // [bit] [0|1]
+  //制动故障码类型：0~1
+  optional Brake_error_codeType brake_error_code = 1;
+  // [bit] [0|1]
+  //前进故障码类型：0~1
+  optional Driven_error_codeType driven_error_code = 2;
+  // [bit] [0|1]
+  //转向故障码类型：0~1
+  optional Steering_error_codeType steering_error_code = 3;
+  // [bit] [0|1]
+  //停车故障码类型：0~1
+  optional Parking_error_codeType parking_error_code = 4;
+  // [] [0|1]
+  //换挡故障码消息：0~1
+  optional Gear_error_msgType gear_error_msg = 5;
+}
+
+//定义车辆状态反馈2 c4的消息类型
+message Vehicle_state_feedback_2_c4 {
+  // Report Message
+  // [rpm] [0|4500]
+  //电机转速：0~4500 转/分
+  optional int32 motor_speed = 1;
+  // [%] [0|100]
+  //驱动扭矩反馈：0~100%
+  optional double driven_torque_feedback = 2;
+}
+
+//定义中云的消息类型
+message Zhongyun {
+  optional Gear_control_a1 gear_control_a1 = 1;          // control message 换挡控制a1
+  optional Torque_control_a3 torque_control_a3 = 2;      // control message 扭矩控制a3
+  optional Steering_control_a2 steering_control_a2 = 3;  // control message 转向控制a2
+  optional Parking_control_a5 parking_control_a5 = 4;    // control message 停车控制a5
+  optional Brake_control_a4 brake_control_a4 = 5;        // control message 制动控制a4
+  optional Enable_state_feedback_c3 enable_state_feedback_c3 =
+      6;  // report message 启用状态反馈c3
+  optional Vehicle_state_feedback_c1 vehicle_state_feedback_c1 =
+      7;  // report message 车辆状态反馈c1
+  optional Error_state_e1 error_state_e1 = 8;  // report message 故障的状态e1
+  optional Vehicle_state_feedback_2_c4 vehicle_state_feedback_2_c4 =
+      9;  // report message 车辆状态反馈2 c4
+}
