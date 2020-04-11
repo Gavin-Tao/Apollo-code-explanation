@@ -41,6 +41,9 @@ class ZhongyunController final : public VehicleController {
  public:
   ZhongyunController() {}
 
+  //描述：override保留字表示当前函数重写了基类的虚函数。
+  //目的：1.在函数比较多的情况下可以提示读者某个函数重写了基类虚函数（表示这个虚函数是从基类继承，不是派生类自己定义的）；
+        //2.强制编译器检查某个函数是否重写基类虚函数，如果没有则报错。
   virtual ~ZhongyunController();
 
   ::apollo::common::ErrorCode Init(
@@ -118,7 +121,8 @@ class ZhongyunController final : public VehicleController {
 
  private:
   // control protocol
-  Brakecontrola4* brake_control_a4_ = nullptr;
+  //nullptr的类型为nullptr_t，能够隐式的转换为任何指针。所以用空指针就尽可能的使用nullptr。
+  Brakecontrola4* brake_control_a4_ = nullptr; 
   Gearcontrola1* gear_control_a1_ = nullptr;
   Parkingcontrola5* parking_control_a5_ = nullptr;
   Steeringcontrola2* steering_control_a2_ = nullptr;

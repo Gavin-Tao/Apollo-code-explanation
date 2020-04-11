@@ -19,6 +19,7 @@
 namespace apollo {
 namespace canbus {
 
+//将传入的车辆参数类赋值给抽象车辆工厂类里的成员变量车辆参数类
 void AbstractVehicleFactory::SetVehicleParameter(
     const VehicleParameter &vehicle_parameter) {
   vehicle_parameter_ = vehicle_parameter;

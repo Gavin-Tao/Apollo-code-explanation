@@ -46,6 +46,7 @@ cc_library(
         "//modules/canbus/vehicle/transit:transit_vehicle_factory",
         "//modules/canbus/vehicle/wey:wey_vehicle_factory",
         "//modules/canbus/vehicle/zhongyun:zhongyun_vehicle_factory",
+        "//modules/canbus/vehicle/guoxuan:guoxuan_vehicle_factory",  //在此添加国轩国轩车辆工厂依赖项包括（.cc和.h，以及test要用的_test.cc)
         "//modules/common/util:factory",
     ],
 )

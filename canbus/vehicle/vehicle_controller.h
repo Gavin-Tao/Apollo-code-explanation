@@ -16,7 +16,7 @@
 
 /**
  * @file vehicle_controller.h
- * @brief The class of VehicleController
+ * @brief The class of VehicleController VehicleController类
  */
 
 #pragma once
@@ -49,50 +49,55 @@ using ::apollo::drivers::canbus::MessageManager;
  *
  * @brief This is the interface class of vehicle controller. It defines pure
  * virtual functions, and also some implemented common functions.
+ * 这是车辆控制器的接口类。 它定义了纯虚函数，还定义了一些已实现的常用函数。
  */
 class VehicleController {
  public:
-  virtual ~VehicleController() = default;
+ //基类声明的虚函数，在派生类中也是虚函数，即使不再使用virtual关键字。
+  virtual ~VehicleController() = default;//析构函数
 
   /**
-   * @brief initialize the vehicle controller.
-   * @param can_sender a pointer to canbus sender.
-   * @param message_manager a pointer to the message_manager.
-   * @return error_code
+   * @brief initialize the vehicle controller.  初始化车辆控制器
+   * @param params  VehicleParameter类以引用的方式传入
+   * @param can_sender a pointer to canbus sender.  can_sender指向canbus发送者的指针。
+   * @param message_manager a pointer to the message_manager. message_manager指向message_manager的指针。
+   * @return error_code  返回故障码
    */
+  //=0标志一个虚函数为纯虚函数
+  //纯虚函数用来规范派生类的行为，实际上就是所谓的“接口”。它告诉使用者，我的派生类都会有这个函数。
   virtual common::ErrorCode Init(
       const VehicleParameter &params,
       CanSender<ChassisDetail> *const can_sender,
       MessageManager<ChassisDetail> *const message_manager) = 0;
 
   /**
-   * @brief start the vehicle controller.
-   * @return true if successfully started.
+   * @brief start the vehicle controller.  启动车辆控制器。
+   * @return true if successfully started.  如果成功启动，则返回true。
    */
   virtual bool Start() = 0;
 
   /**
-   * @brief stop the vehicle controller.
+   * @brief stop the vehicle controller.  停止车辆控制器。
    */
   virtual void Stop() = 0;
 
   /**
-   * @brief calculate and return the chassis.
-   * @returns a copy of chassis. Use copy here to avoid multi-thread issues.
+   * @brief calculate and return the chassis.  计算并返回底盘信息
+   * @returns a copy of chassis. Use copy here to avoid multi-thread issues. 底盘信息的副本。使用副本来避免多线程问题
    */
   virtual Chassis chassis() = 0;
 
   /**
-   * @brief update the vehicle controller.
-   * @param command the control command
-   * @return error_code
+   * @brief update the vehicle controller.  更新车辆控制器。
+   * @param command the control command   ControlCommand类以引用名称为command的形式传入   command：控制命令
+   * @return error_code  返回故障码
    */
   virtual common::ErrorCode Update(const control::ControlCommand &command);
 
   /**
-   * @brief set vehicle to appointed driving mode.
-   * @param driving mode to be appointed.
-   * @return error_code
+   * @brief set vehicle to appointed driving mode.  将车辆设置为指定的驾驶模式。
+   * @param driving mode to be appointed.  driving代表要指定的模式。 将DrivingMode以driving_mode引用方式传入
+   * @return error_code   返回故障码
    */
   virtual common::ErrorCode SetDrivingMode(
       const Chassis::DrivingMode &driving_mode);
@@ -101,57 +106,65 @@ class VehicleController {
   /*
    * @brief main logical function for operation the car enter or exit the auto
    * driving
+   * 汽车进入或退出自动驾驶操作的主要逻辑功能
    */
   virtual void Emergency() = 0;
 
-  virtual common::ErrorCode EnableAutoMode() = 0;
-  virtual common::ErrorCode DisableAutoMode() = 0;
-  virtual common::ErrorCode EnableSteeringOnlyMode() = 0;
-  virtual common::ErrorCode EnableSpeedOnlyMode() = 0;
+  virtual common::ErrorCode EnableAutoMode() = 0; //可以自动驾驶
+  virtual common::ErrorCode DisableAutoMode() = 0; //不可以自动驾驶
+  virtual common::ErrorCode EnableSteeringOnlyMode() = 0; //只可以转向
+  virtual common::ErrorCode EnableSpeedOnlyMode() = 0; //只可以速度
 
   /*
    * @brief NEUTRAL, REVERSE, DRIVE
+   * 空挡，倒挡，前进挡
    */
-  virtual void Gear(Chassis::GearPosition state) = 0;
+  virtual void Gear(Chassis::GearPosition state) = 0; //换挡
 
   /*
    * @brief detail function for auto driving brake with new acceleration
+   * 具有新加速度的自动驾驶制动器的详细功能
    * acceleration:0.00~99.99, unit:%
+   * 加速范围：0.00~99.99%
    */
   virtual void Brake(double acceleration) = 0;
 
   /*
    * @brief drive with old acceleration gas:0.00~99.99 unit:%
+   * 用旧的加速度来驱动  油门范围：0.00~99.99%
    */
   virtual void Throttle(double throttle) = 0;
 
   /*
    * @brief drive with new acceleration/deceleration:-7.0~7.0, unit:m/s^2,
+   * 以新的加速度/减速度驱动   范围：-7.0~7.0 m/s^2
    * acc:-7.0~7.0, unit:m/s^2
    */
   virtual void Acceleration(double acc) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
+   * 以旧的角速度转向  范围：-99.99~0.00~99.99%   左正右负
    * left:+, right:-
    */
   virtual void Steer(double angle) = 0;
 
   /*
    * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
+   * 以新的角速度转向   角度angle：-99.99~0.00~99.99%   角速度angle_spd:0.00~99.99 度/秒    左正右负  
    * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
    */
   virtual void Steer(double angle, double angle_spd) = 0;
 
   /*
-   * @brief set Electrical Park Brake
+   * @brief set Electrical Park Brake  设置电子驻车制动器
    */
-  virtual void SetEpbBreak(const control::ControlCommand &command) = 0;
-  virtual void SetBeam(const control::ControlCommand &command) = 0;
-  virtual void SetHorn(const control::ControlCommand &command) = 0;
-  virtual void SetTurningSignal(const control::ControlCommand &command) = 0;
+  virtual void SetEpbBreak(const control::ControlCommand &command) = 0; //电子驻车
+  virtual void SetBeam(const control::ControlCommand &command) = 0; //远近光
+  virtual void SetHorn(const control::ControlCommand &command) = 0; //喇叭
+  virtual void SetTurningSignal(const control::ControlCommand &command) = 0; //转向灯
 
-  virtual void SetLimits() {}
+  virtual void SetLimits() {} //限制
 
  protected:
   virtual Chassis::DrivingMode driving_mode();

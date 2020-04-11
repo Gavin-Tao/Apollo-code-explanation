@@ -41,34 +41,36 @@ namespace canbus {
  * design pattern. It can create VehicleController and MessageManager based on
  * a given VehicleParameter.
  */
+//此类是遵循AbstractFactory设计模式的抽象工厂。 它可以基于给定的VehicleParameter创建VehicleController和MessageManager。
 class AbstractVehicleFactory {
  public:
   /**
-   * @brief destructor
+   * @brief destructor析构函数
    */
-  virtual ~AbstractVehicleFactory() = default;
+  virtual ~AbstractVehicleFactory() = default;//default关键字，功能是指示编译器完成类特殊成员函数的默认生成工作
 
   /**
-   * @brief the interface of creating a VehicleController class
+   * @brief the interface of creating a VehicleController class 创建VehicleController类的接口
    * @returns a unique pointer that points to the created VehicleController
-   * object.
+   * object. 返回指向创建的VehicleController对象的唯一指针。
    */
   virtual std::unique_ptr<VehicleController> CreateVehicleController() = 0;
 
   /**
-   * @brief the interface of creating a MessageManager class
+   * @brief the interface of creating a MessageManager class 创建MessageMangager类的接口
    * @returns a unique pointer that points to the created MessageManager object.
+   *          返回指向创建的MessageManager对象的唯一指针
    */
   virtual std::unique_ptr<MessageManager<ChassisDetail>>
   CreateMessageManager() = 0;
 
   /**
-   * @brief set VehicleParameter.
+   * @brief set VehicleParameter. 设置车辆参数，将传入的车辆参数类赋值给成员变量的车辆参数类
    */
   void SetVehicleParameter(const VehicleParameter &vehicle_paramter);
 
  private:
-  VehicleParameter vehicle_parameter_;
+  VehicleParameter vehicle_parameter_; //成员变量  车辆参数
 };
 
 }  // namespace canbus
