@@ -1,0 +1,93 @@
+syntax = "proto2";
+
+package apollo.common; //apollo.common包
+
+// Error codes enum for API's categorized by modules.
+//枚举API的错误码，按照模块分类
+enum ErrorCode {
+  //通过enum错误码类型
+  // No error, returns on success.
+  OK = 0; //0代表没有错误，返回成功
+
+  // Control module error codes start from here.
+  //控制模块的错误码
+  CONTROL_ERROR = 1000; //控制错误1000
+  CONTROL_INIT_ERROR = 1001; //控制初始化错误1001
+  CONTROL_COMPUTE_ERROR = 1002; //控制计算错误1002
+  CONTROL_ESTOP_ERROR = 1003; //控制急停错误1003
+
+  // Canbus module error codes start from here.
+  //canbus模块的错误码
+  CANBUS_ERROR = 2000; //canbus错误2000
+  CAN_CLIENT_ERROR_BASE = 2100; //can客户端基础错误2100
+  CAN_CLIENT_ERROR_OPEN_DEVICE_FAILED = 2101; //can客户端打开设备失败2101
+  CAN_CLIENT_ERROR_FRAME_NUM = 2102; //can客户端框号错误2102
+  CAN_CLIENT_ERROR_SEND_FAILED = 2103; //can客户端发送信息失败2103
+  CAN_CLIENT_ERROR_RECV_FAILED = 2104; //can客户端接收信息失败2104
+
+  // Localization module error codes start from here.
+  //定位模块的错误码
+  LOCALIZATION_ERROR = 3000; //定位错误3000
+  LOCALIZATION_ERROR_MSG = 3100; //定位错误信息3100
+  LOCALIZATION_ERROR_LIDAR = 3200; //lidar定位错误3200
+  LOCALIZATION_ERROR_INTEG = 3300; //融合定位错误3300
+  LOCALIZATION_ERROR_GNSS = 3400; //GNSS定位错误3400
+
+  // Perception module error codes start from here.
+  //感知模块的错误码
+  PERCEPTION_ERROR = 4000; //感知错误4000（有感知但是感知错误）
+  PERCEPTION_ERROR_TF = 4001; //感知TF错误4001
+  PERCEPTION_ERROR_PROCESS = 4002; //感知处理错误4002
+  PERCEPTION_FATAL = 4003; //感知致命？4003
+  PERCEPTION_ERROR_NONE = 4004; //没有感知错误4004？（没有感知）
+  PERCEPTION_ERROR_UNKNOWN = 4005; //未知的感知错误4005（不知道有没有感知）
+
+  // Prediction module error codes start from here.
+  //预测模块的错误码
+  PREDICTION_ERROR = 5000; //预测错误5000
+
+  // Planning module error codes start from here
+  //规划模块的错误码
+  PLANNING_ERROR = 6000; //规划错误6000（有规划，但是规划错误）
+  PLANNING_ERROR_NOT_READY = 6001; //规划为准备好6001
+
+  // HDMap module error codes start from here
+  //HDMap模块的功能码
+  HDMAP_DATA_ERROR = 7000; //HDMap数据错误7000
+
+  // Routing module error codes
+  //路径模块的功能码
+  ROUTING_ERROR = 8000; //路径错误8000（有路径，但是路径错误）
+  ROUTING_ERROR_REQUEST = 8001; //路径需求错误8001
+  ROUTING_ERROR_RESPONSE = 8002; //路径效应错误8002
+  ROUTING_ERROR_NOT_READY = 8003; //路径还没有准备好8003
+
+  // Indicates an input has been exhausted.
+  //输入已经被用尽
+  END_OF_INPUT = 9000; //输入被用尽9000
+
+  // HTTP request error codes.
+  //HTTP需求的错误码
+  HTTP_LOGIC_ERROR = 10000; //HTTP逻辑错误10000
+  HTTP_RUNTIME_ERROR = 10001; //HTTP运行时间错误10001
+
+  // Relative Map error codes.
+  //相对的地图错误码
+  RELATIVE_MAP_ERROR = 11000;  // general relative map error code 一般的相对地图错误码
+  RELATIVE_MAP_NOT_READY = 11001; //相对的地图还没有准备好11001
+
+  // Driver error codes.
+  //驱动程序错误代码
+  DRIVER_ERROR_GNSS = 12000; //GNSS驱动程序错误
+  DRIVER_ERROR_VELODYNE = 13000; //velodyne驱动程序错误
+
+  // Storytelling error codes.
+  //讲故事错误代码（描述性功能发生错误）
+  STORYTELLING_ERROR = 14000; //描述性功能错误
+}
+
+message StatusPb {
+  //定义StatusPb状态发布的消息类型
+  optional ErrorCode error_code = 1 [default = OK]; //错误码，默认是没有错误
+  optional string msg = 2; 
+}

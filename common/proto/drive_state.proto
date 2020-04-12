@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package apollo.common;
+
+// This is the engage advice that published by critical runtime modules.
+//这是关键模块运行时发布的参与建议
+message EngageAdvice {
+  //定义参与建议的消息类型
+  enum Advice {
+    UNKNOWN = 0; //未知
+    DISALLOW_ENGAGE = 1; //不允许参与
+    READY_TO_ENGAGE = 2; //准备去参与
+    KEEP_ENGAGED = 3; //保持参与状态
+    PREPARE_DISENGAGE = 4; //准备不让参与
+  }
+
+  optional Advice advice = 1 [default = DISALLOW_ENGAGE]; //默认是不让参与
+  optional string reason = 2; //理由
+}

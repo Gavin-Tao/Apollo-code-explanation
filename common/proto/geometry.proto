@@ -1,0 +1,77 @@
+syntax = "proto2";
+
+package apollo.common;
+
+// A point in the map reference frame. The map defines an origin, whose
+// coordinate is (0, 0, 0).
+// Most modules, including localization, perception, and prediction, generate
+// results based on the map reference frame.
+// Currently, the map uses Universal Transverse Mercator (UTM) projection. See
+// the link below for the definition of map origin.
+//   https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system
+// The z field of PointENU can be omitted. If so, it is a 2D location and we do
+// not care its height.
+//地图参考系中的一个点。地图定义了一个原点，其坐标为（0，0，0），包括定位，感知和预测在内的大多数模块都基于地图参考系生成结果。 
+//当前，该地图使用通用横轴墨卡托（UTM）投影。PointENU的z字段可以省略。 如果是这样，则它是2D位置，不在乎其高度。
+message PointENU {
+  //定义了PointENU的消息类型
+  optional double x = 1 [default = nan];  // East from the origin, in meters. 从原点向东，以米为单位
+  optional double y = 2 [default = nan];  // North from the origin, in meters. 从原点向北，以米为单位
+  optional double z = 3 [default = 0.0];  // Up from the WGS-84 ellipsoid, in  从WGS-84椭球向上，以米为单位
+                                          // meters.
+}
+
+// A point in the global reference frame. Similar to PointENU, PointLLH allows
+// omitting the height field for representing a 2D location.
+//全局参照系中的一个点。 与PointENU相似，PointLLH允许省略表示2D位置的高度字段。
+message PointLLH {
+  //定义PointLLH全局参考系点的消息类型
+  // Longitude in degrees, ranging from -180 to 180.
+  //经度：-180°~180°
+  optional double lon = 1 [default = nan]; //NAN表示未定义或者不可表示的值
+  // Latitude in degrees, ranging from -90 to 90.
+  //纬度：-90°~90°
+  optional double lat = 2 [default = nan];
+  // WGS-84 ellipsoid height in meters.
+  //WGS-84椭圆体的高度，以米为单位
+  optional double height = 3 [default = 0.0]; //默认值为0，表示正好在地面上
+}
+
+// A general 2D point. Its meaning and units depend on context, and must be
+// explained in comments.
+//一般2D点。 其含义和单位取决于上下文，必须在注释中进行解释。
+message Point2D {
+  //定义Point2D 2D点的消息类型
+  optional double x = 1 [default = nan]; //x坐标
+  optional double y = 2 [default = nan]; //y坐标
+}
+
+// A general 3D point. Its meaning and units depend on context, and must be
+// explained in comments.
+//一般的3D点。 其含义和单位取决于上下文，必须在注释中进行解释。
+message Point3D {
+  //定义Point3D 3D点的消息类型
+  optional double x = 1 [default = nan]; //x坐标
+  optional double y = 2 [default = nan]; //y坐标
+  optional double z = 3 [default = nan]; //z坐标
+}
+
+// A unit quaternion that represents a spatial rotation. See the link below for
+// details.
+//   https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+// The scalar part qw can be omitted. In this case, qw should be calculated by
+//   qw = sqrt(1 - qx * qx - qy * qy - qz * qz).
+//表示空间旋转的单位四元数。标量部分qw可以省略。 在这种情况下，qw应计算为 qw = sqrt（1-qx * qx-qy * qy-qz * qz）。
+message Quaternion {
+  optional double qx = 1 [default = nan]; //qx
+  optional double qy = 2 [default = nan]; //qy
+  optional double qz = 3 [default = nan]; //qz
+  optional double qw = 4 [default = nan]; //qw
+}
+
+// A general polygon, points are counter clockwise
+//一般多边形，点是逆时针方向
+message Polygon {
+  //定义Polygon多边形的消息类型
+  repeated Point3D point = 1; //repeated：在一个格式良好的消息中，这种字段可以重复任意多次（包括0次）。重复的值的顺序会被保留。
+}

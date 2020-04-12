@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package apollo.common;
+
+import "modules/common/proto/header.proto";
+import "modules/localization/proto/pose.proto";
+
+message DriveEvent {
+  //定义驾驶事情的消息类型
+  enum Type {
+    //通过枚举各种可能的驾驶事情类型
+    CRITICAL = 0; //危急的
+    PROBLEM = 1; //有问题的
+    DESIRED = 2; //期望的
+    OUT_OF_SCOPE = 3; //超出范围
+  }
+
+  optional apollo.common.Header header = 1;  //Header消息类型
+  optional string event = 2;
+  optional apollo.localization.Pose location = 3;
+  repeated Type type = 4; //驾驶事情类型
+  optional bool is_reportable = 5; //是否可以报告
+}
