@@ -56,12 +56,15 @@ class ZhongyunController final : public VehicleController {
 
   /**
    * @brief stop the vehicle controller.
+   * 停止车辆控制器。
    */
   void Stop() override;
 
   /**
    * @brief calculate and return the chassis.
+   * 计算并返回chassis
    * @returns a copy of chassis. Use copy here to avoid multi-thread issues.
+   * 底盘信息的副本。使用副本来避免多线程问题
    */
   Chassis chassis() override;
   FRIEND_TEST(ZhongyunControllerTest, SetDrivingMode);
@@ -70,11 +73,12 @@ class ZhongyunController final : public VehicleController {
 
  private:
   // main logical function for operation the car enter or exit the auto driving
-  void Emergency() override;
-  ::apollo::common::ErrorCode EnableAutoMode() override;
-  ::apollo::common::ErrorCode DisableAutoMode() override;
-  ::apollo::common::ErrorCode EnableSteeringOnlyMode() override;
-  ::apollo::common::ErrorCode EnableSpeedOnlyMode() override;
+  //汽车进入或退出自动驾驶操作的主要逻辑功能
+  void Emergency() override; //紧急情况
+  ::apollo::common::ErrorCode EnableAutoMode() override; //可以自动驾驶
+  ::apollo::common::ErrorCode DisableAutoMode() override; //不可以自动驾驶
+  ::apollo::common::ErrorCode EnableSteeringOnlyMode() override; //只可以转向
+  ::apollo::common::ErrorCode EnableSpeedOnlyMode() override; //只可以速度
 
   // NEUTRAL, REVERSE, DRIVE
   void Gear(Chassis::GearPosition state) override;
@@ -122,6 +126,7 @@ class ZhongyunController final : public VehicleController {
  private:
   // control protocol
   //nullptr的类型为nullptr_t，能够隐式的转换为任何指针。所以用空指针就尽可能的使用nullptr。
+  //一开始都赋予空指针
   Brakecontrola4* brake_control_a4_ = nullptr; 
   Gearcontrola1* gear_control_a1_ = nullptr;
   Parkingcontrola5* parking_control_a5_ = nullptr;
@@ -130,13 +135,13 @@ class ZhongyunController final : public VehicleController {
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
-  bool is_chassis_error_ = false;
+  bool is_chassis_error_ = false; //默认底盘没有故障
 
   std::mutex chassis_error_code_mutex_;
-  Chassis::ErrorCode chassis_error_code_ = Chassis::NO_ERROR;
+  Chassis::ErrorCode chassis_error_code_ = Chassis::NO_ERROR; //默认故障码为没有故障
 
   std::mutex chassis_mask_mutex_;
-  int32_t chassis_error_mask_ = 0;
+  int32_t chassis_error_mask_ = 0; //默认底盘错误掩码为0
 };
 
 }  // namespace zhongyun

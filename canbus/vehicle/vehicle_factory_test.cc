@@ -1,3 +1,6 @@
+//添加国轩车辆工厂的测试，返回创造的车辆工厂指针或者空指针
+
+
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -31,11 +34,12 @@ class VehicleFactoryTest : public ::testing::Test {
   VehicleFactory factory_;
 };
 
+//测试创建的车辆工厂
 TEST_F(VehicleFactoryTest, CreateVehicle) {
   VehicleParameter parameter;
 
   parameter.set_brand(apollo::common::GEM);
-  EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
+  EXPECT_NE(factory_.CreateVehicle(parameter), nullptr); //返回创建的对象指针或空指针
 
   parameter.set_brand(apollo::common::LINCOLN_MKZ);
   EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
@@ -51,6 +55,9 @@ TEST_F(VehicleFactoryTest, CreateVehicle) {
 
   parameter.set_brand(apollo::common::CH);
   EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
+
+  parameter.set_brand(apollo::common::GUOXUAN);
+  EXPECT_NE(factory_.CreateVehicle(parameter), nullptr); //在此添加国轩车辆工厂的测试，返回创造的车辆工厂指针或者空指针
 }
 
 }  // namespace canbus

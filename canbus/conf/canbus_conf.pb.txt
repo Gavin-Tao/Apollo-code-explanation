@@ -1,5 +1,9 @@
+//激活国轩车辆
+
+
 vehicle_parameter {
-  brand: LINCOLN_MKZ //品牌
+  brand: LINCOLN_MKZ //品牌，代表使用林肯的车辆参数。
+  //brand: GUOXUAN   //在此激活国轩车辆
   max_enable_fail_attempt: 5 //最大失败尝试次数
   driving_mode: COMPLETE_AUTO_DRIVE //驾驶模式
 }

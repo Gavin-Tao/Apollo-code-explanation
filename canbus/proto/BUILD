@@ -1,3 +1,5 @@
+//添加国轩的proto文件
+
 package(default_visibility = ["//visibility:public"])
 
 cc_proto_library(

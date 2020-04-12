@@ -37,19 +37,29 @@ namespace canbus {
  *
  * @brief This class is a factory class that will generate different
  * vehicle factories based on the vehicle brand.
+ * 该类是工厂类，它将根据汽车品牌产生不同的汽车工厂。
  */
+/*template <typename IdentifierType, class AbstractProduct,
+          class ProductCreator = AbstractProduct *(*)(),
+          class MapContainer = std::map<IdentifierType, ProductCreator>>
+*/
+//VehicleBrand车辆品牌，相当于模板中的IdentifierType标识符类型
+//AbstractVehicleFactory抽象车辆工厂，相当于模板中的AbstractProduct抽象产品
 class VehicleFactory
     : public common::util::Factory<apollo::common::VehicleBrand,
                                    AbstractVehicleFactory> {
  public:
   /**
    * @brief register supported vehicle factories.
+   * 注册支持的车辆工厂。
    */
-  void RegisterVehicleFactory();
+  void RegisterVehicleFactory(); //注册车辆工厂
 
   /**
    * @brief Creates an AbstractVehicleFactory object based on vehicle_parameter
-   * @param vehicle_parameter is defined in vehicle_parameter.proto
+   * 根据vehicle_parameter创建一个AbstractVehicleFactory对象
+   * @param vehicle_parameter is defined in vehicle_parameter.proto  
+   * 车辆参数,定义在vehicle_parameter.proto（品牌，最大发动机塔板数，最大失败尝试次数，驾驶模式）
    */
   std::unique_ptr<AbstractVehicleFactory> CreateVehicle(
       const VehicleParameter &vehicle_parameter);

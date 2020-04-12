@@ -34,28 +34,34 @@ using ::apollo::drivers::canbus::ProtocolData;
 
 namespace {
 
-const int32_t kMaxFailAttempt = 10;
-const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
-const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
+const int32_t kMaxFailAttempt = 10; //最大错误尝试次数10
+const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1; //检查转向单元响应的gflag
+const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2; //检查速度单元响应的gflag
 }  // namespace
 
+//控制器初始化，返回故障码
 ErrorCode ZhongyunController::Init(
     const VehicleParameter& params,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
+  //如果已经被初始化则为真，输出已经被初始化并返回canbus的故障码
   if (is_initialized_) {
     AINFO << "ZhongyunController has already been initialized.";
     return ErrorCode::CANBUS_ERROR;
   }
+  //没被初始化，往下执行
   vehicle_params_.CopyFrom(
-      common::VehicleConfigHelper::Instance()->GetConfig().vehicle_param());
-  params_.CopyFrom(params);
+      common::VehicleConfigHelper::Instance()->GetConfig().vehicle_param()); //给common::车辆参数赋值，复制而来
+  params_.CopyFrom(params); //给canbus::成员变量车辆参数赋值
+  //如果canbus::车辆参数没有驾驶模式，则！params_has_driving_mode为真，输出车辆配置文件没有设置驾驶模式并返回canbus故障码
   if (!params_.has_driving_mode()) {
     AERROR << "Vehicle conf pb not set driving_mode.";
     return ErrorCode::CANBUS_ERROR;
   }
 
+  //如果为空指针返回故障码，否则给成员变量can_sender_赋值
   if (can_sender == nullptr) {
+    AERROR << "Protocol can sender is null.";
     return ErrorCode::CANBUS_ERROR;
   }
   can_sender_ = can_sender;

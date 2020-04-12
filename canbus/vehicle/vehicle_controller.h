@@ -167,18 +167,18 @@ class VehicleController {
   virtual void SetLimits() {} //限制
 
  protected:
-  virtual Chassis::DrivingMode driving_mode();
-  virtual void set_driving_mode(const Chassis::DrivingMode &driving_mode);
+  virtual Chassis::DrivingMode driving_mode(); //驾驶模式
+  virtual void set_driving_mode(const Chassis::DrivingMode &driving_mode); //设置驾驶模式
 
  protected:
-  canbus::VehicleParameter params_;
-  common::VehicleParam vehicle_params_;
-  CanSender<ChassisDetail> *can_sender_ = nullptr;
-  MessageManager<ChassisDetail> *message_manager_ = nullptr;
-  bool is_initialized_ = false;  // own by derviative concrete controller
-  Chassis::DrivingMode driving_mode_ = Chassis::COMPLETE_MANUAL;
-  bool is_reset_ = false;  // reset command from control command
-  std::mutex mode_mutex_;  // only use in this base class
+  canbus::VehicleParameter params_; //canbus::车辆参数类
+  common::VehicleParam vehicle_params_; //common::车辆参数类
+  CanSender<ChassisDetail> *can_sender_ = nullptr; //can发送者，默认空指针
+  MessageManager<ChassisDetail> *message_manager_ = nullptr; //消息管理，默认空指针
+  bool is_initialized_ = false;  // own by derviative concrete controller  由衍生的具体控制器管理（是否初始化）
+  Chassis::DrivingMode driving_mode_ = Chassis::COMPLETE_MANUAL; //驾驶模式设置为完全人工驾驶
+  bool is_reset_ = false;  // reset command from control command 重置命令来自控制命令（是否重置）
+  std::mutex mode_mutex_;  // only use in this base class 模式互斥（只能用在基类）
 };
 
 }  // namespace canbus

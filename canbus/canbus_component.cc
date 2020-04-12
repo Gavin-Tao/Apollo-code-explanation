@@ -197,39 +197,45 @@ bool CanbusComponent::Proc() {
 }
 
 void CanbusComponent::OnControlCommand(const ControlCommand &control_command) {
-  int64_t current_timestamp = absl::ToUnixMicros(Clock::Now());
+  int64_t current_timestamp = absl::ToUnixMicros(Clock::Now()); //当前时间戳
   // if command coming too soon, just ignore it.
+  //如果命令来得太早，则忽略它。
   if (current_timestamp - last_timestamp_ < FLAGS_min_cmd_interval * 1000) {
-    ADEBUG << "Control command comes too soon. Ignore.\n Required "
-              "FLAGS_min_cmd_interval["
-           << FLAGS_min_cmd_interval << "], actual time interval["
+    ADEBUG << "Control command comes too soon. Ignore.\n Required "  //来得太早忽略
+              "FLAGS_min_cmd_interval["  //标记最小命令间隔
+           << FLAGS_min_cmd_interval << "], actual time interval["  //实际的时间间隔
            << current_timestamp - last_timestamp_ << "].";
     return;
   }
 
+  //如果命令不是来的太早，更新时间戳
   last_timestamp_ = current_timestamp;
-  ADEBUG << "Control_sequence_number:"
-         << control_command.header().sequence_num() << ", Time_of_delay:"
+  ADEBUG << "Control_sequence_number:"  //控制序列号：
+         << control_command.header().sequence_num() << ", Time_of_delay:" //延迟时间（微秒）
          << current_timestamp -
                 static_cast<int64_t>(control_command.header().timestamp_sec() *
                                      1e6)
-         << " micro seconds";
+         << " micro seconds"; //微秒
 
+  //如果更新控制指令返回的故障码不是ok
   if (vehicle_controller_->Update(control_command) != ErrorCode::OK) {
     AERROR << "Failed to process callback function OnControlCommand because "
               "vehicle_controller_->Update error.";
+              //由于vehicle_controller _-> Update错误，无法处理回调函数OnControlCommand。
     return;
   }
-  can_sender_.Update();
+  can_sender_.Update(); //can发送者更新
 }
 
+//导航命令
 void CanbusComponent::OnGuardianCommand(
     const GuardianCommand &guardian_command) {
   OnControlCommand(guardian_command.control_command());
 }
 
+//返回canbus故障码及故障信息
 common::Status CanbusComponent::OnError(const std::string &error_msg) {
-  monitor_logger_buffer_.ERROR(error_msg);
+  monitor_logger_buffer_.ERROR(error_msg); //监视器记录缓冲区记录故障信息
   return ::apollo::common::Status(ErrorCode::CANBUS_ERROR, error_msg);
 }
 

@@ -6,8 +6,8 @@ import "modules/canbus/proto/chassis.proto";
 import "modules/common/configs/proto/vehicle_config.proto";
 
 message VehicleParameter {
-  optional apollo.common.VehicleBrand brand = 1;
-  optional double max_engine_pedal = 2;
-  optional int32 max_enable_fail_attempt = 3;
-  optional Chassis.DrivingMode driving_mode = 4;
+  optional apollo.common.VehicleBrand brand = 1; //品牌
+  optional double max_engine_pedal = 2; //最大发动机踏板
+  optional int32 max_enable_fail_attempt = 3; //最大启用失败尝试次数
+  optional Chassis.DrivingMode driving_mode = 4; //驾驶模式
 }

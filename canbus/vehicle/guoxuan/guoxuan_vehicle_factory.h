@@ -1,3 +1,7 @@
+//添加国轩车辆工厂
+
+
+
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -15,7 +19,7 @@
  *****************************************************************************/
 
 /**
- * @file zhongyun_vehicle_factory.h
+ * @file guoxuan_vehicle_factory.h
  */
 
 #pragma once
@@ -35,26 +39,28 @@ namespace apollo {
 namespace canbus {
 
 /**
- * @class ZhongyunVehicleFactory
+ * @class GuoxuanVehicleFactory
  *
  * @brief this class is inherited from AbstractVehicleFactory. It can be used to
- * create controller and message manager for zhongyun vehicle.
+ * create controller and message manager for guoxuan vehicle.
  */
-class ZhongyunVehicleFactory : public AbstractVehicleFactory {
+//定义国轩车辆工厂类（继承抽象车辆工厂）
+class GuoxuanVehicleFactory : public AbstractVehicleFactory {
  public:
   /**
    * @brief destructor
    */
-  virtual ~ZhongyunVehicleFactory() = default;
+  //虚析构函数，不可以发生隐式转换
+  virtual ~GuoxuanVehicleFactory() = default;
 
   /**
-   * @brief create zhongyun vehicle controller
+   * @brief create guoxuan vehicle controller
    * @returns a unique_ptr that points to the created controller
    */
   std::unique_ptr<VehicleController> CreateVehicleController() override;
 
   /**
-   * @brief create zhongyun message manager
+   * @brief create guoxuan message manager
    * @returns a unique_ptr that points to the created message manager
    */
   std::unique_ptr<MessageManager<::apollo::canbus::ChassisDetail>>
