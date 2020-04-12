@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package apollo.drivers.canbus; //apollo.drivers.canbus包
+
+message CANCardParameter {
+  //定义can卡参数的消息类型
+  enum CANCardBrand {
+    //通过enum定义can卡品牌类型，并对每个可能的值定义常量
+    FAKE_CAN = 0; //FAKE 0
+    ESD_CAN = 1; //ESD 1
+    SOCKET_CAN_RAW = 2; //SOCKER 2
+    HERMES_CAN = 3; //HERMES 3
+  }
+
+  enum CANCardType {
+    //通过enum定义can卡种类
+    PCI_CARD = 0; //PCI 0
+    USB_CARD = 1; //USB 1
+  }
+
+  enum CANChannelId {
+    //通过enum定义can通道序号
+    CHANNEL_ID_ZERO = 0; //0
+    CHANNEL_ID_ONE = 1; //1
+    CHANNEL_ID_TWO = 2; //2
+    CHANNEL_ID_THREE = 3; //3
+  }
+
+  enum CANInterface {
+    //通过enum定义can接口
+    NATIVE = 0; //原生接口
+    VIRTUAL = 1; //虚拟接口
+    SLCAN = 2; //SLCAN口
+  }
+
+  optional CANCardBrand brand = 1; //品牌
+  optional CANCardType type = 2; //种类
+  optional CANChannelId channel_id = 3; //通道号
+  optional CANInterface interface = 4; //接口
+}
