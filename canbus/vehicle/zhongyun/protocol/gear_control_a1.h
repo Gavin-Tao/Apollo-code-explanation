@@ -74,6 +74,8 @@ class Gearcontrola1 : public ::apollo::drivers::canbus::ProtocolData<
 
  private:
   Gear_control_a1::Gear_state_targetType gear_state_target_;
+  //Gear_control_a1是对应定义的消息类型，Gear_state_targetType是对应的枚举类型。
+  //gear_state_target对应的optional Gear_state_targetType gear_state_target = 1;
   Gear_control_a1::Gear_enable_controlType gear_enable_control_;
 };
 

@@ -1,3 +1,6 @@
+//添加国轩控制器头文件
+
+
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -27,29 +30,30 @@
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
-#include "modules/canbus/vehicle/zhongyun/protocol/brake_control_a4.h"
-#include "modules/canbus/vehicle/zhongyun/protocol/gear_control_a1.h"
-#include "modules/canbus/vehicle/zhongyun/protocol/parking_control_a5.h"
-#include "modules/canbus/vehicle/zhongyun/protocol/steering_control_a2.h"
-#include "modules/canbus/vehicle/zhongyun/protocol/torque_control_a3.h"
+
+#include "modules/canbus/vehicle/guoxuan/protocol/gear_control_g1.h" //在此添加国轩换挡控制头文件
+#include "modules/canbus/vehicle/guoxuan/protocol/steering_control_g2.h" //在此添加国轩转向控制头文件
+#include "modules/canbus/vehicle/guoxuan/protocol/torque_control_g3.h" //在此添加国轩驱动力矩控制头文件
+#include "modules/canbus/vehicle/guoxuan/protocol/brake_control_g4.h" //在此添加国轩制动控制头文件
+#include "modules/canbus/vehicle/guoxuan/protocol/parking_control_g5.h" //在此添加国轩停车控制头文件
 
 namespace apollo {
 namespace canbus {
-namespace zhongyun {
+namespace guoxuan {  //国轩命名空间
 
-class ZhongyunController final : public VehicleController {
+class GuoxuanController final : public VehicleController {
  public:
-  ZhongyunController() {}
+  GuoxuanController() {}  //构造函数
 
   //描述：override保留字表示当前函数重写了基类的虚函数。
   //目的：1.在函数比较多的情况下可以提示读者某个函数重写了基类虚函数（表示这个虚函数是从基类继承，不是派生类自己定义的）；
         //2.强制编译器检查某个函数是否重写基类虚函数，如果没有则报错。
-  virtual ~ZhongyunController();
+  virtual ~GuoxuanController();
 
   ::apollo::common::ErrorCode Init(
       const VehicleParameter& params,
-      CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
-      MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)
+      CanSender<::apollo::canbus::ChassisDetail>* const can_sender,      //can_sender是指向can发送者的指针
+      MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)   //message_manager是指向消息管理器的指针
       override;
 
   bool Start() override;
@@ -67,9 +71,9 @@ class ZhongyunController final : public VehicleController {
    * 底盘信息的副本。使用副本来避免多线程问题
    */
   Chassis chassis() override;
-  FRIEND_TEST(ZhongyunControllerTest, SetDrivingMode);
-  FRIEND_TEST(ZhongyunControllerTest, Status);
-  FRIEND_TEST(ZhongyunControllerTest, UpdateDrivingMode);
+  FRIEND_TEST(GuoxuanControllerTest, SetDrivingMode);
+  FRIEND_TEST(GuoxuanControllerTest, Status);
+  FRIEND_TEST(GuoxuanControllerTest, UpdateDrivingMode);
 
  private:
   // main logical function for operation the car enter or exit the auto driving
@@ -127,11 +131,11 @@ class ZhongyunController final : public VehicleController {
   // control protocol
   //nullptr的类型为nullptr_t，能够隐式的转换为任何指针。所以用空指针就尽可能的使用nullptr。
   //一开始都赋予空指针
-  Brakecontrola4* brake_control_a4_ = nullptr; 
-  Gearcontrola1* gear_control_a1_ = nullptr;
-  Parkingcontrola5* parking_control_a5_ = nullptr;
-  Steeringcontrola2* steering_control_a2_ = nullptr;
-  Torquecontrola3* torque_control_a3_ = nullptr;
+  Brakecontrolg4* brake_control_g4_ = nullptr; //在此添加国轩对应类型
+  Gearcontrolg1* gear_control_g1_ = nullptr;
+  Parkingcontrolg5* parking_control_g5_ = nullptr;
+  Steeringcontrolg2* steering_control_g2_ = nullptr;
+  Torquecontrolg3* torque_control_g3_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
@@ -144,6 +148,6 @@ class ZhongyunController final : public VehicleController {
   int32_t chassis_error_mask_ = 0; //默认底盘错误掩码为0
 };
 
-}  // namespace zhongyun
+}  // namespace guoxuan
 }  // namespace canbus
 }  // namespace apollo

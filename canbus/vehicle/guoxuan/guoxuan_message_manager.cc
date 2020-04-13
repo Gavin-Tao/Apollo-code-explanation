@@ -40,7 +40,7 @@ GuoxuanMessageManager::GuoxuanMessageManager() {
   AddSendProtocolData<Gearcontrolg1, true>();
   AddSendProtocolData<Parkingcontrolg5, true>();
   AddSendProtocolData<Steeringcontrolg2, true>();
-  //AddSendProtocolData<Torquecontrola3, true>();
+  AddSendProtocolData<Torquecontrolg3, true>();
 
   // Report Messages
   //AddRecvProtocolData<Enablestatefeedbackc3, true>();

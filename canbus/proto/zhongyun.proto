@@ -153,7 +153,7 @@ message Vehicle_state_feedback_c1 {
     PARKING_ACTUAL_RELEASE = 0; //释放停车
     PARKING_ACTUAL_PARKING_TRIGGER = 1; //触发停车
   }
-  //枚举实际转向状态的类型
+  //枚举实际换挡状态的类型
   enum Gear_state_actualType {
     GEAR_STATE_ACTUAL_P = 1; //停车
     GEAR_STATE_ACTUAL_N = 2; //空挡
@@ -168,7 +168,7 @@ message Vehicle_state_feedback_c1 {
   //制动扭矩反馈：0~100%
   optional double brake_torque_feedback = 2;
   // [] [0|5]
-  //实际转向状态类型：0~5
+  //实际换挡状态类型：0~5
   optional Gear_state_actualType gear_state_actual = 3;
   // [deg] [-40|40]
   //实际转向：-40°~40°

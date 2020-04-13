@@ -1,5 +1,5 @@
 //看不懂的话，先看435-448的注释
-
+//添加国轩控制器的源文件
 
 /* Copyright 2019 The Apollo Authors. All Rights Reserved.
 
@@ -16,20 +16,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "modules/canbus/vehicle/zhongyun/zhongyun_controller.h"
+#include "modules/canbus/vehicle/guoxuan/guoxuan_controller.h"
 
 #include "modules/common/proto/vehicle_signal.pb.h"
 
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
-#include "modules/canbus/vehicle/zhongyun/zhongyun_message_manager.h"
+#include "modules/canbus/vehicle/guoxuan/guoxuan_message_manager.h"
 #include "modules/common/time/time.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
-namespace zhongyun {
+namespace guoxuan {
 
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
@@ -43,13 +43,13 @@ const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2; //检查速度单元响应的g
 }  // namespace
 
 //控制器初始化，返回故障码
-ErrorCode ZhongyunController::Init(
+ErrorCode GuoxuanController::Init(
     const VehicleParameter& params,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   //如果已经被初始化则为真，输出已经被初始化并返回canbus的故障码
   if (is_initialized_) {
-    AINFO << "ZhongyunController has already been initialized.";
+    AINFO << "GuoxuanController has already been initialized.";
     return ErrorCode::CANBUS_ERROR;
   }
   //没被初始化，往下执行
@@ -78,74 +78,74 @@ ErrorCode ZhongyunController::Init(
 
   // Sender part  发送部分
   //制动
-  brake_control_a4_ = dynamic_cast<Brakecontrola4*>(
-      message_manager_->GetMutableProtocolDataById(Brakecontrola4::ID)); //获得指向动态协议数据（制动控制）的指针
+  brake_control_g4_ = dynamic_cast<Brakecontrolg4*>(
+      message_manager_->GetMutableProtocolDataById(Brakecontrolg4::ID)); //获得指向动态协议数据（制动控制）的指针
   //如果制动控制指针为空，则返回故障信息和故障码
-  if (brake_control_a4_ == nullptr) {
-    AERROR << "Brakecontrola4 does not exist in the ZhongyunMessageManager!";
+  if (brake_control_g4_ == nullptr) {
+    AERROR << "Brakecontrolg4 does not exist in the GuoxuanMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
 
   //换挡
-  gear_control_a1_ = dynamic_cast<Gearcontrola1*>(
-      message_manager_->GetMutableProtocolDataById(Gearcontrola1::ID)); //获得指向动态协议数据（换挡控制）的指针
+  gear_control_g1_ = dynamic_cast<Gearcontrolg1*>(
+      message_manager_->GetMutableProtocolDataById(Gearcontrolg1::ID)); //获得指向动态协议数据（换挡控制）的指针
   //如果换挡控制指针为空，则返回故障信息和故障码
-  if (gear_control_a1_ == nullptr) {
-    AERROR << "Gearcontrola1 does not exist in the ZhongyunMessageManager!";
+  if (gear_control_g1_ == nullptr) {
+    AERROR << "Gearcontrolg1 does not exist in the GuoxuanMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
 
   //停车
-  parking_control_a5_ = dynamic_cast<Parkingcontrola5*>(
-      message_manager_->GetMutableProtocolDataById(Parkingcontrola5::ID)); //获得指向动态协议数据（停车控制）的指针
+  parking_control_g5_ = dynamic_cast<Parkingcontrolg5*>(
+      message_manager_->GetMutableProtocolDataById(Parkingcontrolg5::ID)); //获得指向动态协议数据（停车控制）的指针
   //如果停车控制指针为空，则返回故障信息和故障码
-  if (parking_control_a5_ == nullptr) {
-    AERROR << "Parkingcontrola5 does not exist in the ZhongyunMessageManager!";
+  if (parking_control_g5_ == nullptr) {
+    AERROR << "Parkingcontrolg5 does not exist in the GuoxuanMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
 
   //转向
-  steering_control_a2_ = dynamic_cast<Steeringcontrola2*>(
-      message_manager_->GetMutableProtocolDataById(Steeringcontrola2::ID)); //获得指向动态协议数据（转向控制）的指针
+  steering_control_g2_ = dynamic_cast<Steeringcontrolg2*>(
+      message_manager_->GetMutableProtocolDataById(Steeringcontrolg2::ID)); //获得指向动态协议数据（转向控制）的指针
   //如果转向控制指针为空，则返回故障信息和故障码
-  if (steering_control_a2_ == nullptr) {
-    AERROR << "Steeringcontrola2 does not exist in the ZhongyunMessageManager!";
+  if (steering_control_g2_ == nullptr) {
+    AERROR << "Steeringcontrolg2 does not exist in the GuoxuanMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
 
   //力矩
-  torque_control_a3_ = dynamic_cast<Torquecontrola3*>(
-      message_manager_->GetMutableProtocolDataById(Torquecontrola3::ID)); //获得指向动态协议数据（力矩控制）的指针
+  torque_control_g3_ = dynamic_cast<Torquecontrolg3*>(
+      message_manager_->GetMutableProtocolDataById(Torquecontrolg3::ID)); //获得指向动态协议数据（力矩控制）的指针
   //如果力矩控制指针为空，则返回故障信息和故障码
-  if (torque_control_a3_ == nullptr) {
-    AERROR << "Torquecontrola3 does not exist in the ZhongyunMessageManager!";
+  if (torque_control_g3_ == nullptr) {
+    AERROR << "Torquecontrolg3 does not exist in the GuoxuanMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
 
   //在can_sender_中添加消息（控制命令id，指向动态协议数据的指针）
   //如果为true，则将协议数据中的所有位初始化为1。 默认情况下为false。
-  can_sender_->AddMessage(Brakecontrola4::ID, brake_control_a4_, false);
-  can_sender_->AddMessage(Gearcontrola1::ID, gear_control_a1_, false);
-  can_sender_->AddMessage(Parkingcontrola5::ID, parking_control_a5_, false);
-  can_sender_->AddMessage(Steeringcontrola2::ID, steering_control_a2_, false);
-  can_sender_->AddMessage(Torquecontrola3::ID, torque_control_a3_, false);
+  can_sender_->AddMessage(Brakecontrolg4::ID, brake_control_g4_, false);
+  can_sender_->AddMessage(Gearcontrolg1::ID, gear_control_g1_, false);
+  can_sender_->AddMessage(Parkingcontrolg5::ID, parking_control_g5_, false);
+  can_sender_->AddMessage(Steeringcontrolg2::ID, steering_control_g2_, false);
+  can_sender_->AddMessage(Torquecontrolg3::ID, torque_control_g3_, false);
 
   // Need to sleep to ensure all messages received
   //需要休眠以确保收到所有消息
-  AINFO << "ZhongyunController is initialized."; //输出控制器已经被初始化。
+  AINFO << "GuoxuanController is initialized."; //输出控制器已经被初始化。
 
   is_initialized_ = true;  //将默认为false的is_initialized_赋值为true
   return ErrorCode::OK; //返回OK故障码，代表没有故障
 }
 
 //析构函数
-ZhongyunController::~ZhongyunController() {}
+GuoxuanController::~GuoxuanController() {}
 
 //打开控制器
-bool ZhongyunController::Start() {
+bool GuoxuanController::Start() {
   //检查是否初始化完成
   if (!is_initialized_) {
-    AERROR << "ZhongyunController has NOT been initialized.";
+    AERROR << "GuoxuanController has NOT been initialized.";
     return false;
   }
   const auto& update_func = [this] { SecurityDogThreadFunc(); }; //安全线程，检查与底盘通讯情况
@@ -155,24 +155,24 @@ bool ZhongyunController::Start() {
 }
 
 //停止控制器
-void ZhongyunController::Stop() {
+void GuoxuanController::Stop() {
   //如果没有初始化为真，则控制器停止或者不正确启动
   if (!is_initialized_) {
-    AERROR << "ZhongyunController stops or starts improperly!";
+    AERROR << "GuoxuanController stops or starts improperly!";
     return;
   }
 
   //如果初始化了，往下执行
-  //如果指向线程的指针不为空且可以加入线程           joinable()   如果可以加入该线程，则返回true
+  //如果指向线程的指针不为空且可以加入线程         joinable()   如果可以加入该线程，则返回true
   if (thread_ != nullptr && thread_->joinable()) {
     thread_->join();  //将控制器的线程加入线程
     thread_.reset();  //控制器线程线程重置
-    AINFO << "ZhongyunController stopped.";  //控制器已经停止
+    AINFO << "GuoxuanController stopped.";  //控制器已经停止
   }
 }
 
 //底盘
-Chassis ZhongyunController::chassis() {
+Chassis GuoxuanController::chassis() {
   chassis_.Clear(); //底盘清理（重置）
 
   ChassisDetail chassis_detail;  //底盘信息
@@ -192,29 +192,29 @@ Chassis ZhongyunController::chassis() {
   chassis_.set_engine_started(true);
   // if there is not zhongyun, no chassis detail can be retrieved and return
   //如果没有中云，则无法检索和返回底盘详细信息
-  if (!chassis_detail.has_zhongyun()) {
-    AERROR << "NO ZHONGYUN chassis information!";
+  if (!chassis_detail.has_guoxuan()) {
+    AERROR << "NO GUOXUAN chassis information!";
     return chassis_;
   }
-  Zhongyun zhy = chassis_detail.zhongyun();  //中云的底盘信息
+  Guoxuan gx = chassis_detail.guoxuan();  //中云的底盘信息
 
   // 4 engine_rpm
   //引擎转速 转/分
   //如果底盘信息有车辆状态反馈信息2和有电机转速信息时为真，则设置底盘信息里的引擎转速（电机转速）
-  if (zhy.has_vehicle_state_feedback_2_c4() &&
-      zhy.vehicle_state_feedback_2_c4().has_motor_speed()) {
+  if (gx.has_vehicle_state_feedback_2_c4() &&
+      gx.vehicle_state_feedback_2_g4().has_motor_speed()) {
     chassis_.set_engine_rpm(
-        static_cast<float>(zhy.vehicle_state_feedback_2_c4().motor_speed()));
+        static_cast<float>(zhy.vehicle_state_feedback_2_g4().motor_speed()));
   } else {
     chassis_.set_engine_rpm(0);  //否则设置引擎转速为0
   }
   // 5 speed_mps
   //车速  m/s
   //如果底盘信息有车辆状态反馈信息和有车速信息时为真，则设置底盘信息里的车速
-  if (zhy.has_vehicle_state_feedback_c1() &&
-      zhy.vehicle_state_feedback_c1().has_speed()) {
+  if (gx.has_vehicle_state_feedback_g1() &&
+      gx.vehicle_state_feedback_g1().has_speed()) {
     chassis_.set_speed_mps(
-        static_cast<float>(zhy.vehicle_state_feedback_c1().speed()));
+        static_cast<float>(gx.vehicle_state_feedback_g1().speed()));
   } else {
     chassis_.set_speed_mps(0);  //否则设置车速为0
   }
@@ -225,39 +225,39 @@ Chassis ZhongyunController::chassis() {
   // 7 acc_pedal
   //油门踏板
   //如果中云底盘信息有车辆状态反馈信息2和有驱动力矩返回信息时为真，则设置节气门开度百分比
-  if (zhy.has_vehicle_state_feedback_2_c4() &&
-      zhy.vehicle_state_feedback_2_c4().has_driven_torque_feedback()) {
+  if (gx.has_vehicle_state_feedback_2_g4() &&
+      gx.vehicle_state_feedback_2_g4().has_driven_torque_feedback()) {
     chassis_.set_throttle_percentage(static_cast<float>(
-        zhy.vehicle_state_feedback_2_c4().driven_torque_feedback()));
+        gx.vehicle_state_feedback_2_g4().driven_torque_feedback()));
   } else {
     chassis_.set_throttle_percentage(0);  //否则设置节气门开度为0
   }
   // 8 brake_pedal
   //制动踏板
   //如果中云底盘信息有车辆状态反馈信息和制动力矩返回信息时为真，则设置制动开度百分比
-  if (zhy.has_vehicle_state_feedback_c1() &&
-      zhy.vehicle_state_feedback_c1().has_brake_torque_feedback()) {
+  if (gx.has_vehicle_state_feedback_g1() &&
+      gx.vehicle_state_feedback_g1().has_brake_torque_feedback()) {
     chassis_.set_brake_percentage(static_cast<float>(
-        zhy.vehicle_state_feedback_c1().brake_torque_feedback()));
+        gx.vehicle_state_feedback_g1().brake_torque_feedback()));
   } else {
     chassis_.set_brake_percentage(0); //否则设置制动开度为0
   }
   // 9 gear position
   //档位
   //如果中云底盘信息有车辆状态反馈信息和实际档位状态信息时为真，则设置底盘的档位信息
-  if (zhy.has_vehicle_state_feedback_c1() &&
-      zhy.vehicle_state_feedback_c1().has_gear_state_actual()) {
-    switch (zhy.vehicle_state_feedback_c1().gear_state_actual()) {
-      case Vehicle_state_feedback_c1::GEAR_STATE_ACTUAL_D: {
+  if (gx.has_vehicle_state_feedback_g1() &&
+      gx.vehicle_state_feedback_g1().has_gear_state_actual()) {
+    switch (gx.vehicle_state_feedback_g1().gear_state_actual()) {
+      case Vehicle_state_feedback_g1::GEAR_STATE_ACTUAL_D: {
         chassis_.set_gear_location(Chassis::GEAR_DRIVE); //实际档位是前进挡
       } break;
-      case Vehicle_state_feedback_c1::GEAR_STATE_ACTUAL_N: {
+      case Vehicle_state_feedback_g1::GEAR_STATE_ACTUAL_N: {
         chassis_.set_gear_location(Chassis::GEAR_NEUTRAL); //实际档位是空挡
       } break;
-      case Vehicle_state_feedback_c1::GEAR_STATE_ACTUAL_R: {
+      case Vehicle_state_feedback_g1::GEAR_STATE_ACTUAL_R: {
         chassis_.set_gear_location(Chassis::GEAR_REVERSE); //实际档位是倒挡
       } break;
-      case Vehicle_state_feedback_c1::GEAR_STATE_ACTUAL_P: {
+      case Vehicle_state_feedback_g1::GEAR_STATE_ACTUAL_P: {
         chassis_.set_gear_location(Chassis::GEAR_PARKING); //实际档位是停车挡
       } break;
       default:
@@ -270,10 +270,10 @@ Chassis ZhongyunController::chassis() {
   // 11 steering_percentage
   //转向百分比
   //如果中云底盘信息有车辆状态反馈信息和有实际转向信息时为真，设置转向百分比
-  if (zhy.has_vehicle_state_feedback_c1() &&
-      zhy.vehicle_state_feedback_c1().has_steering_actual()) {
+  if (gx.has_vehicle_state_feedback_g1() &&
+      gx.vehicle_state_feedback_g1().has_steering_actual()) {
     chassis_.set_steering_percentage(static_cast<float>(
-        zhy.vehicle_state_feedback_c1().steering_actual() * 100.0 /
+        gx.vehicle_state_feedback_g1().steering_actual() * 100.0 /
         vehicle_params_.max_steer_angle() * M_PI / 180)); //设置转向百分比
   } else {
     chassis_.set_steering_percentage(0);  //否则设置转向百分比为0
@@ -281,11 +281,11 @@ Chassis ZhongyunController::chassis() {
   // 12 epb
   //电子驻车制动
   //如果中云底盘信息有车辆状态反馈信息和有实际停车信息时为真，设置底盘是否可以停车制动信息
-  if (zhy.has_vehicle_state_feedback_c1() &&
-      zhy.vehicle_state_feedback_c1().has_parking_actual()) {
+  if (gx.has_vehicle_state_feedback_g1() &&
+      gx.vehicle_state_feedback_g1().has_parking_actual()) {
     chassis_.set_parking_brake(
-        zhy.vehicle_state_feedback_c1().parking_actual() ==
-        Vehicle_state_feedback_c1::PARKING_ACTUAL_PARKING_TRIGGER); //设置底盘是否停车制动信息（根据实际停车信息是否可以触发）
+        gx.vehicle_state_feedback_g1().parking_actual() ==
+        Vehicle_state_feedback_g1::PARKING_ACTUAL_PARKING_TRIGGER); //设置底盘是否停车制动信息（根据实际停车信息是否可以触发）
         //Vehicle_state_feedback_c1为定义的消息类型，PARKING_ACTUAL_PARKING_TRIGGER为该消息类型下的枚举
   } else {
     chassis_.set_parking_brake(false); //否则设置不可以停车制动
@@ -312,33 +312,33 @@ Chassis ZhongyunController::chassis() {
 }
 
 //紧急
-void ZhongyunController::Emergency() {
+void GuoxuanController::Emergency() {
   set_driving_mode(Chassis::EMERGENCY_MODE);  //设定紧急驾驶模式
   ResetProtocol(); //重置协议
 }
 
 //是否为自动驾驶模式，返回故障码
-ErrorCode ZhongyunController::EnableAutoMode() {
+ErrorCode GuoxuanController::EnableAutoMode() {
   //如果驾驶模式时自动驾驶模式，输出已经自动驾驶模式并返回OK故障码
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
     AINFO << "Already in COMPLETE_AUTO_DRIVE mode.";
     return ErrorCode::OK;
   }
   //对指向转向控制的指针设定转向可以控制（启用转向自动控制）
-  steering_control_a2_->set_steering_enable_control(
-      Steering_control_a2::STEERING_ENABLE_CONTROL_STEERING_AUTOCONTROL);
+  steering_control_g2_->set_steering_enable_control(
+      Steering_control_g2::STEERING_ENABLE_CONTROL_STEERING_AUTOCONTROL);
   //换挡（启用换挡自动控制）
-  gear_control_a1_->set_gear_enable_control(
-      Gear_control_a1::GEAR_ENABLE_CONTROL_GEAR_AUTOCONTROL);
+  gear_control_g1_->set_gear_enable_control(
+      Gear_control_g1::GEAR_ENABLE_CONTROL_GEAR_AUTOCONTROL);
   //力矩控制（启用驱动自动控制）
-  torque_control_a3_->set_driven_enable_control(
-      Torque_control_a3::DRIVEN_ENABLE_CONTROL_DRIVE_AUTO);
+  torque_control_g3_->set_driven_enable_control(
+      Torque_control_g3::DRIVEN_ENABLE_CONTROL_DRIVE_AUTO);
   //制动控制（启用制动自动控制）
-  brake_control_a4_->set_brake_enable_control(
-      Brake_control_a4::BRAKE_ENABLE_CONTROL_BRAKE_AUTO);
+  brake_control_g4_->set_brake_enable_control(
+      Brake_control_g4::BRAKE_ENABLE_CONTROL_BRAKE_AUTO);
   //停车控制（启用停车自动控制）
-  parking_control_a5_->set_parking_enable_control(
-      Parking_control_a5::PARKING_ENABLE_CONTROL_PARKING_AUTOCONTROL);
+  parking_control_g5_->set_parking_enable_control(
+      Parking_control_g5::PARKING_ENABLE_CONTROL_PARKING_AUTOCONTROL);
 
   can_sender_->Update(); //can发送者消息更新
   const int32_t flag =
@@ -357,7 +357,7 @@ ErrorCode ZhongyunController::EnableAutoMode() {
 }
 
 //返回不能够自动驾驶模式的故障码
-ErrorCode ZhongyunController::DisableAutoMode() {
+ErrorCode GuoxuanController::DisableAutoMode() {
   ResetProtocol(); //重置协议
   can_sender_->Update(); //can发送者更新消息
   set_driving_mode(Chassis::COMPLETE_MANUAL); //设置完全手工驾驶模式
@@ -367,7 +367,7 @@ ErrorCode ZhongyunController::DisableAutoMode() {
 }
 
 //返回只能转向模式的故障码
-ErrorCode ZhongyunController::EnableSteeringOnlyMode() {
+ErrorCode GuoxuanController::EnableSteeringOnlyMode() {
   //如果现在的驾驶模式是自动驾驶或者仅转向模式为真
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_STEER_ONLY) {
@@ -376,16 +376,16 @@ ErrorCode ZhongyunController::EnableSteeringOnlyMode() {
     return ErrorCode::OK; //返回OK
   }
   //否则对转向、换挡、前进、制动设置启用的控制模式,除了设置转向是自动控制模式外，其余均设置为手工控制
-  steering_control_a2_->set_steering_enable_control(
-      Steering_control_a2::STEERING_ENABLE_CONTROL_STEERING_AUTOCONTROL); //设定启用转向控制模式为转向自动控制
-  gear_control_a1_->set_gear_enable_control(
-      Gear_control_a1::GEAR_ENABLE_CONTROL_GEAR_MANUALCONTROL); //设定启用换挡控制模式为手工换挡控制
-  torque_control_a3_->set_driven_enable_control(
-      Torque_control_a3::DRIVEN_ENABLE_CONTROL_DRIVE_MANUAL); //驱动力矩控制模式为手工驱动控制
-  brake_control_a4_->set_brake_enable_control(
-      Brake_control_a4::BRAKE_ENABLE_CONTROL_BRAKE_MANUAL); //手工制动控制
-  parking_control_a5_->set_parking_enable_control(
-      Parking_control_a5::PARKING_ENABLE_CONTROL_PARKING_MANUALCONTROL); //手工停车控制
+  steering_control_g2_->set_steering_enable_control(
+      Steering_control_g2::STEERING_ENABLE_CONTROL_STEERING_AUTOCONTROL); //设定启用转向控制模式为转向自动控制
+  gear_control_g1_->set_gear_enable_control(
+      Gear_control_g1::GEAR_ENABLE_CONTROL_GEAR_MANUALCONTROL); //设定启用换挡控制模式为手工换挡控制
+  torque_control_g3_->set_driven_enable_control(
+      Torque_control_g3::DRIVEN_ENABLE_CONTROL_DRIVE_MANUAL); //驱动力矩控制模式为手工驱动控制
+  brake_control_g4_->set_brake_enable_control(
+      Brake_control_g4::BRAKE_ENABLE_CONTROL_BRAKE_MANUAL); //手工制动控制
+  parking_control_g5_->set_parking_enable_control(
+      Parking_control_g5::PARKING_ENABLE_CONTROL_PARKING_MANUALCONTROL); //手工停车控制
 
   can_sender_->Update(); //can发送者更新消息
   const int32_t flag =
@@ -403,7 +403,7 @@ ErrorCode ZhongyunController::EnableSteeringOnlyMode() {
 }
 
 //返回仅速度模式的故障码
-ErrorCode ZhongyunController::EnableSpeedOnlyMode() {
+ErrorCode GuoxuanController::EnableSpeedOnlyMode() {
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_SPEED_ONLY) {
     set_driving_mode(Chassis::AUTO_SPEED_ONLY);
@@ -411,16 +411,16 @@ ErrorCode ZhongyunController::EnableSpeedOnlyMode() {
     return ErrorCode::OK;
   }
   //换挡、驱动力矩、制动、停车设置为自动模式，转向设置为手动模式
-  steering_control_a2_->set_steering_enable_control(
-      Steering_control_a2::STEERING_ENABLE_CONTROL_STEERING_MANUALCONTROL);
-  gear_control_a1_->set_gear_enable_control(
-      Gear_control_a1::GEAR_ENABLE_CONTROL_GEAR_AUTOCONTROL);
-  torque_control_a3_->set_driven_enable_control(
-      Torque_control_a3::DRIVEN_ENABLE_CONTROL_DRIVE_AUTO);
-  brake_control_a4_->set_brake_enable_control(
-      Brake_control_a4::BRAKE_ENABLE_CONTROL_BRAKE_AUTO);
-  parking_control_a5_->set_parking_enable_control(
-      Parking_control_a5::PARKING_ENABLE_CONTROL_PARKING_AUTOCONTROL);
+  steering_control_g2_->set_steering_enable_control(
+      Steering_control_g2::STEERING_ENABLE_CONTROL_STEERING_MANUALCONTROL);
+  gear_control_g1_->set_gear_enable_control(
+      Gear_control_g1::GEAR_ENABLE_CONTROL_GEAR_AUTOCONTROL);
+  torque_control_g3_->set_driven_enable_control(
+      Torque_control_g3::DRIVEN_ENABLE_CONTROL_DRIVE_AUTO);
+  brake_control_g4_->set_brake_enable_control(
+      Brake_control_g4::BRAKE_ENABLE_CONTROL_BRAKE_AUTO);
+  parking_control_g5_->set_parking_enable_control(
+      Parking_control_g5::PARKING_ENABLE_CONTROL_PARKING_AUTOCONTROL);
 
   can_sender_->Update();
   if (CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true) == false) {
@@ -436,7 +436,7 @@ ErrorCode ZhongyunController::EnableSpeedOnlyMode() {
 
 // NEUTRAL, REVERSE, DRIVE, PARK
 //Chassis对应的定义的消息类型，GearPosition对应枚举类型，gear_position对应optional GearPosition gear_location = 23;重命名的名字，这里是gear_position
-void ZhongyunController::Gear(Chassis::GearPosition gear_position) {
+void GuoxuanController::Gear(Chassis::GearPosition gear_position) {
   //如果驾驶模式不是自动驾驶也不是仅速度控制，那么输出不需要设置换挡，并返回OK
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
@@ -485,7 +485,7 @@ void ZhongyunController::Gear(Chassis::GearPosition gear_position) {
 
 // brake with brake pedal
 // pedal:0.00~99.99, unit:percentage
-void ZhongyunController::Brake(double pedal) {
+void GuoxuanController::Brake(double pedal) {
   //如果驾驶模式不是自动驾驶模式也不是仅速度模式为真，输出不需要再设置制动踏板。
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
@@ -497,7 +497,7 @@ void ZhongyunController::Brake(double pedal) {
 
 // drive with throttle pedal
 // pedal:0.00~99.99 unit:percentage
-void ZhongyunController::Throttle(double pedal) {
+void GuoxuanController::Throttle(double pedal) {
   //如果驾驶模式不是自动驾驶模式也不是仅速度模式为真，输出不需要再设置油门踏板
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
@@ -510,7 +510,7 @@ void ZhongyunController::Throttle(double pedal) {
 // confirm the car is driven by acceleration command or throttle/brake pedal
 // drive with acceleration/deceleration  加减速度
 // acc:-7.0 ~ 5.0, unit:m/s^2
-void ZhongyunController::Acceleration(double acc) {
+void GuoxuanController::Acceleration(double acc) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration."; //不需要设置加减速度
@@ -519,13 +519,13 @@ void ZhongyunController::Acceleration(double acc) {
   // None   需要确认车是通过加减速度驱动还是通过油门/制动踏板驱动
 }
 
-// zhongyun default, -30 ~ 30, left:+, right:- 中云默认-30%~30%，左正右负
+// guoxuan default, -30 ~ 30, left:+, right:- 中云默认-30%~30%，左正右负
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:%, left:-, right:+
 //需要与控制模块兼容，因此以旧角速度反向转向
 //角度：-99.99〜0.00〜99.99，单位:%，左：-，右：+
-void ZhongyunController::Steer(double angle) {
+void GuoxuanController::Steer(double angle) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -537,9 +537,9 @@ void ZhongyunController::Steer(double angle) {
 }
 
 // steering with new angle speed   转向以新的角速度
-// zhongyun has no angle_speed
+// guoxuan has no angle_speed
 // angle:-30~30, unit:%, left:+, right:-
-void ZhongyunController::Steer(double angle, double angle_spd) {
+void GuoxuanController::Steer(double angle, double angle_spd) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -551,19 +551,19 @@ void ZhongyunController::Steer(double angle, double angle_spd) {
 }
 
 //电子驻车制动
-void ZhongyunController::SetEpbBreak(const ControlCommand& command) {
+void GuoxuanController::SetEpbBreak(const ControlCommand& command) {
   //指令中是否有停车制动
   if (command.parking_brake()) {
-    parking_control_a5_->set_parking_target(
-        Parking_control_a5::PARKING_TARGET_PARKING_TRIGGER); //触发电子驻车制动
+    parking_control_g5_->set_parking_target(
+        Parking_control_g5::PARKING_TARGET_PARKING_TRIGGER); //触发电子驻车制动
   } else {
-    parking_control_a5_->set_parking_target(
-        Parking_control_a5::PARKING_TARGET_RELEASE); //释放电子驻车制动
+    parking_control_g5_->set_parking_target(
+        Parking_control_g5::PARKING_TARGET_RELEASE); //释放电子驻车制动
   }
 }
 
 //远近光灯
-void ZhongyunController::SetBeam(const ControlCommand& command) {
+void GuoxuanController::SetBeam(const ControlCommand& command) {
   if (command.signal().high_beam()) {
     // None
   } else if (command.signal().low_beam()) {
@@ -574,7 +574,7 @@ void ZhongyunController::SetBeam(const ControlCommand& command) {
 }
 
 //喇叭
-void ZhongyunController::SetHorn(const ControlCommand& command) {
+void GuoxuanController::SetHorn(const ControlCommand& command) {
   if (command.signal().horn()) {
     // None
   } else {
@@ -583,65 +583,65 @@ void ZhongyunController::SetHorn(const ControlCommand& command) {
 }
 
 //信号灯
-void ZhongyunController::SetTurningSignal(const ControlCommand& command) {
+void GuoxuanController::SetTurningSignal(const ControlCommand& command) {
   // Set Turn Signal
   // None
 }
 
 //重置协议（发送过来的数据）
-void ZhongyunController::ResetProtocol() {
+void GuoxuanController::ResetProtocol() {
   message_manager_->ResetSendMessages();
 }
 
-bool ZhongyunController::CheckChassisError() {
+bool GuoxuanController::CheckChassisError() {
   ChassisDetail chassis_detail;//底盘信息
   message_manager_->GetSensorData(&chassis_detail); //获取底盘信息
   //检查底盘信息是否有中云信息
-  if (!chassis_detail.has_zhongyun()) {
-    AERROR_EVERY(100) << "ChassisDetail has NO zhongyun vehicle info."
+  if (!chassis_detail.has_guoxuan()) {
+    AERROR_EVERY(100) << "ChassisDetail has NO guoxuan vehicle info."
                       << chassis_detail.DebugString();
     return false;
   }
-  Zhongyun zhy = chassis_detail.zhongyun();
+  Guoxuan gx = chassis_detail.guoxuan();
   // check steer error
   //检查转向错误
-  if (zhy.has_error_state_e1() &&
-      zhy.error_state_e1().has_steering_error_code()) {
-    if (zhy.error_state_e1().steering_error_code() ==
+  if (gx.has_error_state_e1() &&
+      gx.error_state_e1().has_steering_error_code()) {
+    if (gx.error_state_e1().steering_error_code() ==
         Error_state_e1::STEERING_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check ems error
   //检查驱动错误
-  if (zhy.has_error_state_e1() &&
-      zhy.error_state_e1().has_driven_error_code()) {
-    if (zhy.error_state_e1().driven_error_code() ==
+  if (gx.has_error_state_e1() &&
+      gx.error_state_e1().has_driven_error_code()) {
+    if (gx.error_state_e1().driven_error_code() ==
         Error_state_e1::DRIVEN_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check eps error
   //检查制动错误
-  if (zhy.has_error_state_e1() && zhy.error_state_e1().has_brake_error_code()) {
-    if (zhy.error_state_e1().brake_error_code() ==
+  if (gx.has_error_state_e1() && gx.error_state_e1().has_brake_error_code()) {
+    if (gx.error_state_e1().brake_error_code() ==
         Error_state_e1::BRAKE_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check gear error
   //检查换挡错误
-  if (zhy.has_error_state_e1() && zhy.error_state_e1().has_gear_error_msg()) {
-    if (zhy.error_state_e1().gear_error_msg() ==
+  if (gx.has_error_state_e1() && gx.error_state_e1().has_gear_error_msg()) {
+    if (gx.error_state_e1().gear_error_msg() ==
         Error_state_e1::GEAR_ERROR_MSG_ERROR) {
       return true;
     }
   }
   // check parking error
   //检查停车错误
-  if (zhy.has_error_state_e1() &&
-      zhy.error_state_e1().has_parking_error_code()) {
-    if (zhy.error_state_e1().parking_error_code() ==
+  if (gx.has_error_state_e1() &&
+      gx.error_state_e1().has_parking_error_code()) {
+    if (gx.error_state_e1().parking_error_code() ==
         Error_state_e1::PARKING_ERROR_CODE_ERROR) {
       return true;
     }
@@ -649,7 +649,7 @@ bool ZhongyunController::CheckChassisError() {
   return false;
 }
 //安全预警
-void ZhongyunController::SecurityDogThreadFunc() {
+void GuoxuanController::SecurityDogThreadFunc() {
   int32_t vertical_ctrl_fail = 0;
   int32_t horizontal_ctrl_fail = 0;
 
@@ -716,13 +716,13 @@ void ZhongyunController::SecurityDogThreadFunc() {
       std::this_thread::sleep_for(default_period - elapsed);
     } else {
       AERROR
-          << "Too much time consumption in ZhongyunController looping process:" //否则输出ZhongyunController循环过程中耗时过多
+          << "Too much time consumption in GuoxuanController looping process:" //否则输出ZhongyunController循环过程中耗时过多
           << elapsed.count();
     }
   }
 }
 
-bool ZhongyunController::CheckResponse(const int32_t flags, bool need_wait) {
+bool GuoxuanController::CheckResponse(const int32_t flags, bool need_wait) {
   // for Zhongyun, CheckResponse commonly takes 300ms. We leave a 100ms buffer
   // for it.
   //对于Zhongyun，CheckResponse通常需要300毫秒。 我们为其保留了100ms的缓冲区。
@@ -772,22 +772,22 @@ bool ZhongyunController::CheckResponse(const int32_t flags, bool need_wait) {
   return false;
 }
 
-void ZhongyunController::set_chassis_error_mask(const int32_t mask) {
+void GuoxuanController::set_chassis_error_mask(const int32_t mask) {
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   chassis_error_mask_ = mask;
 }
 
-int32_t ZhongyunController::chassis_error_mask() {
+int32_t GuoxuanController::chassis_error_mask() {
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   return chassis_error_mask_;
 }
 
-Chassis::ErrorCode ZhongyunController::chassis_error_code() {
+Chassis::ErrorCode GuoxuanController::chassis_error_code() {
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   return chassis_error_code_;
 }
 
-void ZhongyunController::set_chassis_error_code(
+void GuoxuanController::set_chassis_error_code(
     const Chassis::ErrorCode& error_code) {
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   chassis_error_code_ = error_code;
