@@ -18,11 +18,10 @@ limitations under the License.
 #include "modules/canbus/vehicle/guoxuan/guoxuan_message_manager.h"  //在此添加国轩的消息管理器头文件
 
 #include "modules/canbus/vehicle/guoxuan/protocol/gear_control_g1.h" //在此添加国轩换挡控制g1头文件
-#include "modules/canbus/vehicle/guoxuan/protocol/steering_control_a2.h" //在此添加国轩转向控制g2
+#include "modules/canbus/vehicle/guoxuan/protocol/steering_control_g2.h" //在此添加国轩转向控制g2
 #include "modules/canbus/vehicle/guoxuan/protocol/brake_control_g4.h" //在此添加国轩制动控制g4头文件
-#include "modules/canbus/vehicle/guoxuan/protocol/parking_control_a5.h" //在此添加国轩停车控制g5头文件
-
-//#include "modules/canbus/vehicle/zhongyun/protocol/torque_control_a3.h"
+#include "modules/canbus/vehicle/guoxuan/protocol/parking_control_g5.h" //在此添加国轩停车控制g5头文件
+#include "modules/canbus/vehicle/zhongyun/protocol/torque_control_g3.h" //在此添加国轩驱动力矩控制g3头文件
 
 //#include "modules/canbus/vehicle/zhongyun/protocol/enable_state_feedback_c3.h"
 //#include "modules/canbus/vehicle/zhongyun/protocol/error_state_e1.h"
