@@ -156,9 +156,10 @@ class CanSender {
    *        which contains the content to send.
    * @param init_with_one If it is true, then initialize all bits in
    *        the protocol data as one. By default, it is false.
+   * 如果为true，则将协议数据中的所有位初始化为1。 默认情况下为false。
    */
   void AddMessage(uint32_t message_id, ProtocolData<SensorType> *protocol_data,
-                  bool init_one = false);
+                  bool init_with_one = false);
 
   /**
    * @brief Start the CAN sender.

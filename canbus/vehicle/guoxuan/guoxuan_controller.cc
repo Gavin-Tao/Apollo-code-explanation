@@ -201,7 +201,7 @@ Chassis GuoxuanController::chassis() {
   // 4 engine_rpm
   //引擎转速 转/分
   //如果底盘信息有车辆状态反馈信息2和有电机转速信息时为真，则设置底盘信息里的引擎转速（电机转速）
-  if (gx.has_vehicle_state_feedback_2_c4() &&
+  if (gx.has_vehicle_state_feedback_2_g4() &&
       gx.vehicle_state_feedback_2_g4().has_motor_speed()) {
     chassis_.set_engine_rpm(
         static_cast<float>(zhy.vehicle_state_feedback_2_g4().motor_speed()));
@@ -286,7 +286,7 @@ Chassis GuoxuanController::chassis() {
     chassis_.set_parking_brake(
         gx.vehicle_state_feedback_g1().parking_actual() ==
         Vehicle_state_feedback_g1::PARKING_ACTUAL_PARKING_TRIGGER); //设置底盘是否停车制动信息（根据实际停车信息是否可以触发）
-        //Vehicle_state_feedback_c1为定义的消息类型，PARKING_ACTUAL_PARKING_TRIGGER为该消息类型下的枚举
+        //Vehicle_state_feedback_g1为定义的消息类型，PARKING_ACTUAL_PARKING_TRIGGER为该消息类型下的枚举
   } else {
     chassis_.set_parking_brake(false); //否则设置不可以停车制动
   }
@@ -447,37 +447,37 @@ void GuoxuanController::Gear(Chassis::GearPosition gear_position) {
   //档位非NONE时，执行case语句
   switch (gear_position) {
     case Chassis::GEAR_NEUTRAL: {  //Chassis对应定义的消息类型，GEAR_NEUTRAL对应GearPosition里的各种可能的值
-      gear_control_a1_->set_gear_state_target(   //gear_control_a1是指针，对应gear_control_a1.cc，set_gear_state_target是文件里的函数
-          Gear_control_a1::GEAR_STATE_TARGET_N);  //Gear_control_a1对应定义的消息类型，GEAR_STATE_TARGET_N对应Gear_state_targetType中的各种可能值
+      gear_control_g1_->set_gear_state_target(   //gear_control_a1是指针，对应gear_control_a1.cc，set_gear_state_target是文件里的函数
+          Gear_control_g1::GEAR_STATE_TARGET_N);  //Gear_control_a1对应定义的消息类型，GEAR_STATE_TARGET_N对应Gear_state_targetType中的各种可能值
       break;
     }
     case Chassis::GEAR_REVERSE: {
-      gear_control_a1_->set_gear_state_target(
-          Gear_control_a1::GEAR_STATE_TARGET_R);
+      gear_control_g1_->set_gear_state_target(
+          Gear_control_g1::GEAR_STATE_TARGET_R);
       break;
     }
     case Chassis::GEAR_DRIVE: {
-      gear_control_a1_->set_gear_state_target(
-          Gear_control_a1::GEAR_STATE_TARGET_D);
+      gear_control_g1_->set_gear_state_target(
+          Gear_control_g1::GEAR_STATE_TARGET_D);
       break;
     }
     case Chassis::GEAR_PARKING: {
-      gear_control_a1_->set_gear_state_target(
-          Gear_control_a1::GEAR_STATE_TARGET_P);
+      gear_control_g1_->set_gear_state_target(
+          Gear_control_g1::GEAR_STATE_TARGET_P);
       break;
     }
 
     //无效的档位
     case Chassis::GEAR_INVALID: {
       AERROR << "Gear command is invalid!";
-      gear_control_a1_->set_gear_state_target(
-          Gear_control_a1::GEAR_STATE_TARGET_INVALID);
+      gear_control_g1_->set_gear_state_target(
+          Gear_control_g1::GEAR_STATE_TARGET_INVALID);
       break;
     }
     //其他情况都设置为停车挡
     default: {
-      gear_control_a1_->set_gear_state_target(
-          Gear_control_a1::GEAR_STATE_TARGET_P);
+      gear_control_g1_->set_gear_state_target(
+          Gear_control_g1::GEAR_STATE_TARGET_P);
       break;
     }
   }
@@ -492,7 +492,7 @@ void GuoxuanController::Brake(double pedal) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
-  brake_control_a4_->set_brake_torque(pedal);  //返回指向制动踏板的指针
+  brake_control_g4_->set_brake_torque(pedal);  //返回指向制动踏板的指针
 }
 
 // drive with throttle pedal
@@ -504,7 +504,7 @@ void GuoxuanController::Throttle(double pedal) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  torque_control_a3_->set_driven_torque(pedal); //返回指向油门踏板的指针
+  torque_control_g3_->set_driven_torque(pedal); //返回指向油门踏板的指针
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -533,7 +533,7 @@ void GuoxuanController::Steer(double angle) {
   }
   const double real_angle =
       vehicle_params_.max_steer_angle() / M_PI * 180 * angle / 100.0; //真实角度百分比
-  steering_control_a2_->set_steering_target(real_angle); //设定转向目标
+  steering_control_g2_->set_steering_target(real_angle); //设定转向目标
 }
 
 // steering with new angle speed   转向以新的角速度
@@ -547,7 +547,7 @@ void GuoxuanController::Steer(double angle, double angle_spd) {
   }
   const double real_angle =
       vehicle_params_.max_steer_angle() / M_PI * 180 * angle / 100.0; //真实角度百分比
-  steering_control_a2_->set_steering_target(real_angle); //设定转向目标
+  steering_control_g2_->set_steering_target(real_angle); //设定转向目标
 }
 
 //电子驻车制动
@@ -605,44 +605,44 @@ bool GuoxuanController::CheckChassisError() {
   Guoxuan gx = chassis_detail.guoxuan();
   // check steer error
   //检查转向错误
-  if (gx.has_error_state_e1() &&
-      gx.error_state_e1().has_steering_error_code()) {
-    if (gx.error_state_e1().steering_error_code() ==
-        Error_state_e1::STEERING_ERROR_CODE_ERROR) {
+  if (gx.has_error_state_g1() &&
+      gx.error_state_g1().has_steering_error_code()) {
+    if (gx.error_state_g1().steering_error_code() ==
+        Error_state_g1::STEERING_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check ems error
   //检查驱动错误
-  if (gx.has_error_state_e1() &&
-      gx.error_state_e1().has_driven_error_code()) {
-    if (gx.error_state_e1().driven_error_code() ==
-        Error_state_e1::DRIVEN_ERROR_CODE_ERROR) {
+  if (gx.has_error_state_g1() &&
+      gx.error_state_g1().has_driven_error_code()) {
+    if (gx.error_state_g1().driven_error_code() ==
+        Error_state_g1::DRIVEN_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check eps error
   //检查制动错误
-  if (gx.has_error_state_e1() && gx.error_state_e1().has_brake_error_code()) {
-    if (gx.error_state_e1().brake_error_code() ==
-        Error_state_e1::BRAKE_ERROR_CODE_ERROR) {
+  if (gx.has_error_state_g1() && gx.error_state_g1().has_brake_error_code()) {
+    if (gx.error_state_g1().brake_error_code() ==
+        Error_state_g1::BRAKE_ERROR_CODE_ERROR) {
       return true;
     }
   }
   // check gear error
   //检查换挡错误
-  if (gx.has_error_state_e1() && gx.error_state_e1().has_gear_error_msg()) {
-    if (gx.error_state_e1().gear_error_msg() ==
-        Error_state_e1::GEAR_ERROR_MSG_ERROR) {
+  if (gx.has_error_state_g1() && gx.error_state_g1().has_gear_error_msg()) {
+    if (gx.error_state_g1().gear_error_msg() ==
+        Error_state_g1::GEAR_ERROR_MSG_ERROR) {
       return true;
     }
   }
   // check parking error
   //检查停车错误
-  if (gx.has_error_state_e1() &&
-      gx.error_state_e1().has_parking_error_code()) {
-    if (gx.error_state_e1().parking_error_code() ==
-        Error_state_e1::PARKING_ERROR_CODE_ERROR) {
+  if (gx.has_error_state_g1() &&
+      gx.error_state_g1().has_parking_error_code()) {
+    if (gx.error_state_g1().parking_error_code() ==
+        Error_state_g1::PARKING_ERROR_CODE_ERROR) {
       return true;
     }
   }
@@ -723,9 +723,9 @@ void GuoxuanController::SecurityDogThreadFunc() {
 }
 
 bool GuoxuanController::CheckResponse(const int32_t flags, bool need_wait) {
-  // for Zhongyun, CheckResponse commonly takes 300ms. We leave a 100ms buffer
+  // for Guoxuan, CheckResponse commonly takes 300ms. We leave a 100ms buffer
   // for it.
-  //对于Zhongyun，CheckResponse通常需要300毫秒。 我们为其保留了100ms的缓冲区。
+  //对于Guoxuan，CheckResponse通常需要300毫秒。 我们为其保留了100ms的缓冲区。
   int32_t retry_num = 20;
   ChassisDetail chassis_detail;
   bool is_eps_online = false;

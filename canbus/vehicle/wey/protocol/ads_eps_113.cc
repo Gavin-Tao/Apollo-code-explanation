@@ -80,7 +80,7 @@ void Adseps113::set_p_ads_reqepstargetangle(uint8_t* data,
   int x = static_cast<int>((ads_reqepstargetangle - -800.000000) / 0.100000);
   uint8_t t = 0;
 
-  t = static_cast<uint8_t>(x & 0x3F);
+  t = static_cast<uint8_t>(x & 0x3F); 、、63=0011 1111
   Byte to_set0(data + 2);
   to_set0.set_value(t, 2, 6);
   x >>= 6;
