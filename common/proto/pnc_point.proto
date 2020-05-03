@@ -6,102 +6,115 @@ syntax = "proto2";
 //PnC=Planning and Control 规划和控制
 package apollo.common;
 
+//SL坐标系下的点
 message SLPoint {
-  optional double s = 1;
-  optional double l = 2;
+  optional double s = 1; //s轴坐标
+  optional double l = 2; //l轴坐标
 }
 
+//Frenet坐标系下的点
 message FrenetFramePoint {
-  optional double s = 1;
-  optional double l = 2;
-  optional double dl = 3;
-  optional double ddl = 4;
+  optional double s = 1; //s轴坐标
+  optional double l = 2; //l轴坐标
+  optional double dl = 3; //dl  l的一阶导
+  optional double ddl = 4;//ddl  l的二阶导
 }
 
+//速度点
 message SpeedPoint {
-  optional double s = 1;
-  optional double t = 2;
+  optional double s = 1; //s轴坐标
+  optional double t = 2; //时间t
   // speed (m/s)
-  optional double v = 3;
+  optional double v = 3; //速度m/s
   // acceleration (m/s^2)
-  optional double a = 4;
+  optional double a = 4; //加速度m/s^2
   // jerk (m/s^3)
-  optional double da = 5;
+  optional double da = 5; //jerk加加速度m/s^3
 }
 
+//路径点
 message PathPoint {
   // coordinates
+  //坐标
   optional double x = 1;
   optional double y = 2;
   optional double z = 3;
 
   // direction on the x-y plane
-  optional double theta = 4;
+  optional double theta = 4; //x-y平面上的方向角theta
   // curvature on the x-y planning
-  optional double kappa = 5;
+  optional double kappa = 5; //XY平面上的曲率kappa
   // accumulated distance from beginning of the path
-  optional double s = 6;
+  optional double s = 6; //距离路径起点的累计距离
 
   // derivative of kappa w.r.t s.
-  optional double dkappa = 7;
+  optional double dkappa = 7; //dkappa
   // derivative of derivative of kappa w.r.t s.
-  optional double ddkappa = 8;
+  optional double ddkappa = 8; //ddkappa
   // The lane ID where the path point is on
-  optional string lane_id = 9;
+  optional string lane_id = 9; //路径点所在的车道ID
 
   // derivative of x and y w.r.t parametric parameter t in CosThetareferenceline
-  optional double x_derivative = 10;
-  optional double y_derivative = 11;
+  //x y的导数   costheta参考线中的w r t
+  optional double x_derivative = 10; //dx
+  optional double y_derivative = 11; //dy
 }
 
 message Path {
-  optional string name = 1;
-  repeated PathPoint path_point = 2;
+  optional string name = 1; //路径名
+  repeated PathPoint path_point = 2; //路径点
 }
 
+//轨迹点
 message TrajectoryPoint {
   // path point
-  optional PathPoint path_point = 1;
+  optional PathPoint path_point = 1; //路径点
   // linear velocity
-  optional double v = 2;  // in [m/s]
+  optional double v = 2;  // in [m/s] //线速度 m/s
   // linear acceleration
-  optional double a = 3;
+  optional double a = 3; //线加速度 m/s^2
   // relative time from beginning of the trajectory
-  optional double relative_time = 4;
+  optional double relative_time = 4; //从轨迹开始时的相对时间
   // longitudinal jerk
-  optional double da = 5;
+  optional double da = 5; //纵向加加速度（路程对时间的三阶导）
   // The angle between vehicle front wheel and vehicle longitudinal axis
-  optional double steer = 6;
+  optional double steer = 6; //转向角：车辆前轮与车辆纵轴之间的角度
 
   // Gaussian probability information
-  optional GaussianInfo gaussian_info = 7;
+  optional GaussianInfo gaussian_info = 7;//高斯概率信息
 }
 
+//轨迹
 message Trajectory {
-  optional string name = 1;
-  repeated TrajectoryPoint trajectory_point = 2;
+  optional string name = 1; //轨迹名
+  repeated TrajectoryPoint trajectory_point = 2;//轨迹点
 }
 
+//车辆运动点
 message VehicleMotionPoint {
   // trajectory point
-  optional TrajectoryPoint trajectory_point = 1;
+  optional TrajectoryPoint trajectory_point = 1; //车辆运动的轨迹点
   // The angle between vehicle front wheel and vehicle longitudinal axis
-  optional double steer = 2;
+  optional double steer = 2; //车辆运动的转向角：车辆前轮与车辆纵轴之间的角度
 }
 
+//车辆运动
 message VehicleMotion {
-  optional string name = 1;
+  optional string name = 1; //车辆运动名
   repeated VehicleMotionPoint vehicle_motion_point = 2;
 }
 
+//高斯概率信息
 message GaussianInfo {
   // Information of gaussian distribution
-  optional double sigma_x = 1;
-  optional double sigma_y = 2;
-  optional double correlation = 3;
+  //高斯分布信息
+  optional double sigma_x = 1; //sigmax
+  optional double sigma_y = 2; //sigmay
+  optional double correlation = 3; //相关性
   // Information of representative uncertainty area
-  optional double area_probability = 4;
-  optional double ellipse_a = 5;
-  optional double ellipse_b = 6;
-  optional double theta_a = 7;
+  //代表不确定区域的信息
+  optional double area_probability = 4; //区域概率
+  optional double ellipse_a = 5; //椭圆a
+  optional double ellipse_b = 6; //椭圆b
+  optional double theta_a = 7; //theta
 }

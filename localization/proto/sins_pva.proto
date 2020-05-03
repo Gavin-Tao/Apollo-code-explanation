@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package apollo.localization;
+
+import "modules/common/proto/header.proto";
+import "modules/common/proto/geometry.proto";
+
+//SINS捷联惯导  定位结果（PVA)
+message IntegSinsPva {
+  optional apollo.common.Header header = 1;
+
+  // The position calculated by SINS.
+
+  optional apollo.common.PointLLH position = 2; //由SINS计算的位置。
+
+  // The velocity calculated by SINS.
+  optional apollo.common.Point3D velocity = 3; //由SINS计算的速度。
+
+  // The attitude euler calculated by SINS.//SINS计算出的姿态欧拉角。
+  optional apollo.common.Point3D attitude = 4;
+
+  // 9-by-9 covariance matrix of the sins pva.
+  repeated double pva_covar = 5 [packed = true]; //sins pva的9×9协方差矩阵。(封装好为真)
+
+  optional bool init_and_alignment = 6; //初始化和对准
+}

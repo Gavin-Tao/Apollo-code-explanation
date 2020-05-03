@@ -34,7 +34,7 @@ message Header {
   //数据融合
   optional uint32 version = 7 [default = 1]; //版本
 
-  optional StatusPb status = 8;
+  optional StatusPb status = 8;//状态
 
   optional string frame_id = 9; //坐标系ID
 }

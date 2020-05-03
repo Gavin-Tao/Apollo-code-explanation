@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package apollo.localization;
+
+//定位配置
+message LocalizationConfig {
+  //定位类型
+  enum LocalizationType {
+    RTK = 0; //RTK
+    MSF = 1; //MSF
+  };
+  optional LocalizationType localization_type = 1 [default = RTK]; //定位类型默认RTK
+}

@@ -1,0 +1,81 @@
+/******************************************************************************
+ * Copyright 2017 The Apollo Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *****************************************************************************/
+
+syntax = "proto2";
+
+package apollo.localization;
+
+import "modules/common/proto/geometry.proto";
+
+message Pose {
+  // Position of the vehicle reference point (VRP) in the map reference frame.
+  //车辆参考点（VRP）在地图参考框中的位置
+  // The VRP is the center of rear axle.
+  //VRP是后轴的中心。  车辆参考点在后车轴的中点处
+  optional apollo.common.PointENU position = 1; //geometry.proto中定义的PointENU,定义了UTM坐标系下的（x,y,z)对应右前上
+
+  // A quaternion that represents the rotation from the IMU coordinate
+  // (Right/Forward/Up) to the
+  // world coordinate (East/North/Up).
+   //表示从IMU坐标（向右/向前/向上）到世界坐标（东/北/上）旋转的四元数
+   //IMU的向右代表世界坐标系的向东，IMU的向前代表世界坐标系的向北
+  optional apollo.common.Quaternion orientation = 2; //变换四元数
+
+  // Linear velocity of the VRP in the map reference frame.
+  //地图参考框中车辆参考点VRP的线速度。
+  // East/north/up in meters per second.
+  //东/北/上   米/秒为单位。
+  optional apollo.common.Point3D linear_velocity = 3; //x,y,z对应东、北、上方向的线速度
+
+  // Linear acceleration of the VRP in the map reference frame.
+  //车辆参考点VRP在地图参考框架中的线加速度。 东/北/上  单位：m/s^2
+  // East/north/up in meters per square second.
+  optional apollo.common.Point3D linear_acceleration = 4; //x,y,z对应东、北、上的线加速度
+
+  // Angular velocity of the vehicle in the map reference frame.
+  //车辆参考点在地图中的角速度   围绕东/北/上轴，以弧度每秒为单位。
+  // Around east/north/up axes in radians per second.
+  optional apollo.common.Point3D angular_velocity = 5; //围绕x,y,z轴（对应东北上）的角速度
+
+  // Heading
+  // The heading is zero when the car is facing East and positive when facing
+  // North.
+  //朝向  当汽车朝东时，航向为零；朝北时，航向为正。
+  optional double heading = 6;
+
+  // Linear acceleration of the VRP in the vehicle reference frame.
+  //车辆参考点在车体参考下的线加速度  右前上  单位：m/s^2
+  // Right/forward/up in meters per square second.
+  optional apollo.common.Point3D linear_acceleration_vrf = 7;//x,y,z（对应右前上）的线加速度
+
+  // Angular velocity of the VRP in the vehicle reference frame.
+  // Around right/forward/up axes in radians per second.
+  //车辆参考点在车体参考下的角速度   绕右前上轴  单位弧度每秒  
+  optional apollo.common.Point3D angular_velocity_vrf = 8; //绕x,y,z轴（对应右前上）的角速度
+
+  // Roll/pitch/yaw that represents a rotation with intrinsic sequence z-x-y.
+  // in world coordinate (East/North/Up)
+  // The roll, in (-pi/2, pi/2), corresponds to a rotation around the y-axis.
+  // The pitch, in [-pi, pi), corresponds to a rotation around the x-axis.
+  // The yaw, in [-pi, pi), corresponds to a rotation around the z-axis.
+  // The direction of rotation follows the right-hand rule.
+  //横滚/俯仰/偏航，表示在世界坐标系（东/北/上）中具有固有序列z-x-y的旋转
+  //横滚roll范围是（-pi/2, pi/2)，代表绕着y轴旋转
+  //俯仰pitch范围是（-pi/2, pi/2)，代表绕着x轴旋转
+  //偏航yaw范围是（-pi/2, pi/2)，代表绕着z轴旋转
+  //满足右手定则
+  optional apollo.common.Point3D euler_angles = 9; //欧拉角  rpy对应zxy
+}

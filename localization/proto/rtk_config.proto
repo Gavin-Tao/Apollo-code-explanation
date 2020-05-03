@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package apollo.localization.rtk_config;
+
+message Config {
+  optional string localization_topic = 1; //定位话题
+  optional string localization_status_topic = 11; //定位状态话题
+  optional string imu_topic = 2; //imu话题
+  optional string gps_topic = 3; //gps话题
+  optional string gps_status_topic = 12; //gps状态话题
+  optional string broadcast_tf_frame_id = 4; //广播tf坐标系
+  optional string broadcast_tf_child_frame_id = 5; //广播tf子坐标系
+  optional int32 imu_list_max_size = 6; //imu列表的最大尺寸
+  optional double gps_imu_time_diff_threshold = 7; //gps和imu时间上不同的阈值
+  optional double map_offset_x = 8; //地图偏移x
+  optional double map_offset_y = 9; //地图偏移y
+  optional double map_offset_z = 10; //地图偏移z
+}
